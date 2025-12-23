@@ -1,0 +1,15 @@
+import "dotenv/config";
+
+export const env = {
+  PORT: process.env.PORT || 3000,
+  DATABASE_URL: process.env.DATABASE_URL,
+  DATABASE_DIRECT_URL: process.env.DATABASE_DIRECT_URL,
+  JWT_SECRET: process.env.JWT_SECRET,
+  JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN,
+  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,
+  JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN,
+  JWT_RESET_SECRET: process.env.JWT_RESET_SECRET,
+  JWT_RESET_EXPIRES_IN: process.env.JWT_RESET_EXPIRES_IN,
+  JWT_VERIFY_SECRET: process.env.JWT_VERIFY_SECRET,
+  JWT_VERIFY_EXPIRES_IN: process.env.JWT_VERIFY_EXPIRES_IN,
+};
