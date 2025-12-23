@@ -1,3 +1,4 @@
+import { env } from "../src/config/dotenv.config";
 import { PrismaClient } from "../src/generated/prisma";
 
 declare global {
@@ -11,6 +12,11 @@ export const prisma =
       process.env.NODE_ENV === "development"
         ? ["query", "info", "warn", "error"]
         : ["error"],
+    datasources: {
+      db: {
+        url: env.DATABASE_URL,
+      },
+    },
   });
 
 if (process.env.NODE_ENV !== "production") {
