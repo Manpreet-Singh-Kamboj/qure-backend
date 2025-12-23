@@ -1,18 +1,20 @@
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../src/generated/prisma"
 }
 
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_DIRECT_URL")
 }
 
 model User {
   id            String   @id @default(uuid())
   email         String   @unique 
   password      String
-  name          String 
+  firstName     String 
+  lastName      String 
   role          Role     @default(PATIENT)
   clinicId      String?
   isActive      Boolean  @default(true)
