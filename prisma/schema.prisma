@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique 
+  password      String
+  name          String 
+  role          Role     @default(PATIENT)
+  clinicId      String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  clinic        Clinic?  @relation("StaffInClinic",fields: [clinicId], references: [id], onDelete: Cascade)  
+  tokens        Token[]  @relation("PatientTokens")
+  staffActivity StaffActivity[]
+}
+
+model Clinic {
+  id            String   @id @default(uuid())
+  name          String
+  address       String?
+  latitude      Float
+  longitude     Float
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  staff         User[]   @relation("StaffInClinic")
+  queues        Queue[] 
+}
+
+model Queue {
+  id              String   @id @default(uuid())
+  clinicId        String
+  queueDate       DateTime
+  currentTokenNo  Int      @default(0)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  clinic          Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  tokens          Token[]
+}
+
+model Token {
+  id              String   @id @default(uuid())
+  queueId         String
+  patientId       String
+  tokenNumber     Int      
+  status          TokenStatus @default(WAITING)
+  createdAt       DateTime @default(now())
+  calledAt        DateTime?
+  completedAt     DateTime?
+  skippedAt       DateTime?
+
+  patient         User     @relation("PatientTokens", fields: [patientId], references: [id], onDelete: Cascade)
+  queue           Queue     @relation(fields: [queueId], references: [id], onDelete: Cascade)
+  staffActivity   StaffActivity[]
+}
+
+model StaffActivity {
+  id              String   @id @default(uuid())
+  staffId         String
+  tokenId         String
+  action          StaffAction
+  createdAt       DateTime @default(now())
+
+  staff           User     @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  token           Token    @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  PATIENT
+  STAFF
+  ADMIN
+}
+
+enum TokenStatus {
+  WAITING
+  CALLED
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+}
+
+enum StaffAction {
+  CALL
+  SKIP
+  COMPLETE
+}
