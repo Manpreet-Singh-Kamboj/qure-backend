@@ -3,6 +3,7 @@ import { ResponseHandler } from "../utils/response.handler";
 import {
   LoginSchema,
   LogoutSchema,
+  RefreshTokenSchema,
   RegisterSchema,
 } from "../schemas/auth.schema";
 import { AuthService } from "../services/auth.service";
@@ -90,6 +91,31 @@ export class AuthController {
       const profile = await AuthService.getProfile(req.user.id);
       return ResponseHandler.success(res, undefined, 200, profile);
     } catch (error) {
+      console.error(error);
+      return ResponseHandler.error(
+        res,
+        "Something went wrong. Please try again later.",
+        500,
+        null
+      );
+    }
+  };
+
+  static refreshToken = async (req: Request, res: Response) => {
+    try {
+      const { refreshToken, deviceInfo } = req.body as RefreshTokenSchema;
+      const ipAddress = getClientIp(req);
+      const data = await AuthService.refreshToken(
+        refreshToken,
+        deviceInfo?.userAgent,
+        ipAddress
+      );
+
+      return ResponseHandler.success(res, undefined, 200, data);
+    } catch (error) {
+      if (error instanceof Error) {
+        return ResponseHandler.error(res, error.message, 401, null);
+      }
       console.error(error);
       return ResponseHandler.error(
         res,

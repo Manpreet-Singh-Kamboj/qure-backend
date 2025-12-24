@@ -3,6 +3,7 @@ import { validate } from "../middlewares/schema.validate";
 import {
   loginSchema,
   logoutSchema,
+  refreshTokenSchema,
   registerSchema,
 } from "../schemas/auth.schema";
 import { AuthController } from "../controllers/auth.controller";
@@ -14,5 +15,10 @@ router.post("/register", validate(registerSchema), AuthController.register);
 router.post("/login", validate(loginSchema), AuthController.login);
 router.post("/logout", validate(logoutSchema), AuthController.logout);
 router.get("/me", isAuthenticated, AuthController.getProfile);
+router.post(
+  "/refresh-token",
+  validate(refreshTokenSchema),
+  AuthController.refreshToken
+);
 
 export { router as authRouter };

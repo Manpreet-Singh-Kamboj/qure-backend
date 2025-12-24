@@ -138,4 +138,60 @@ export class AuthService {
       },
     });
   };
+
+  static refreshToken = async (
+    refreshToken: string,
+    userAgent: string | undefined,
+    ipAddress: string | undefined
+  ) => {
+    const refreshTokenHash = hashToken(refreshToken);
+    const session = await prisma.session.findUnique({
+      where: { refreshTokenHash },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            role: true,
+          },
+        },
+      },
+    });
+
+    if (!session || session.isRevoked || session.expiresAt < new Date()) {
+      throw new Error("Unauthorized");
+    }
+
+    const newRefreshToken = generateRefreshToken();
+    const newRefreshTokenHash = hashToken(newRefreshToken);
+    const expiresAt = new Date(Date.now() + SEVEN_DAYS);
+
+    await prisma.$transaction([
+      prisma.session.create({
+        data: {
+          userId: session.user.id,
+          refreshTokenHash: newRefreshTokenHash,
+          userAgent,
+          ipAddress,
+          expiresAt,
+        },
+      }),
+      prisma.session.update({
+        where: { id: session.id },
+        data: { isRevoked: true },
+      }),
+    ]);
+
+    const accessToken = generateAccessToken({
+      id: session.user.id,
+      email: session.user.email,
+      role: session.user.role,
+      type: "access",
+    });
+
+    return {
+      accessToken,
+      refreshToken: newRefreshToken,
+    };
+  };
 }
