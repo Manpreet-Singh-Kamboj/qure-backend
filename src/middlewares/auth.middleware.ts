@@ -1,0 +1,25 @@
+import { NextFunction, Request, Response } from "express";
+import { ResponseHandler } from "../utils/response.handler";
+import { verifyAccessToken } from "../utils/token.util";
+
+export const isAuthenticated = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return ResponseHandler.error(res, "Unauthorized", 401, null);
+    }
+    const decoded = verifyAccessToken(token);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    console.error(error);
+    if (error instanceof Error) {
+      return ResponseHandler.error(res, error.message, 401, null);
+    }
+    return ResponseHandler.error(res, "Unauthorized", 401, null);
+  }
+};

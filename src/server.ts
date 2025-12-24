@@ -1,9 +1,11 @@
 import { createServer, Server as HttpServer } from "node:http";
-import app from "./app";
+import { Express } from "express";
 import { env } from "./config/dotenv.config";
 import { initializeSocket } from "./socket";
+import { initializeExpressServer } from "./app";
 
-export function initializeServer() {
+export function initializeServer(): void {
+  const app: Express = initializeExpressServer();
   const server: HttpServer = createServer(app);
 
   initializeSocket(server);

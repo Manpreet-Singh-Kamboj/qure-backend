@@ -1,5 +1,12 @@
 import { prisma } from "../../prisma/client";
 import bcrypt from "bcryptjs";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  hashToken,
+} from "../utils/token.util";
+
+const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
 
 export class AuthService {
   static register = async (
@@ -17,6 +24,117 @@ export class AuthService {
         lastName,
         email,
         password: hashedPassword,
+      },
+    });
+  };
+
+  static login = async (
+    email: string,
+    password: string,
+    userAgent: string | undefined,
+    ipAddress: string | undefined
+  ) => {
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        clinicId: true,
+        isActive: true,
+        password: true,
+      },
+    });
+
+    if (!user) {
+      throw new Error("Invalid email or password");
+    }
+
+    if (!user.isActive) {
+      throw new Error("Account is disabled");
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      throw new Error("Invalid email or password");
+    }
+
+    const userData = {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      clinicId: user.clinicId,
+    };
+
+    const accessToken = generateAccessToken({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      type: "access",
+    });
+
+    const refreshToken = generateRefreshToken();
+
+    await this.createSession(user.id, refreshToken, userAgent, ipAddress);
+
+    return {
+      user: {
+        ...userData,
+      },
+      accessToken,
+      refreshToken,
+    };
+  };
+
+  static revokePreviousSessions = async (userId: string) => {
+    await prisma.session.updateMany({
+      where: { userId, isRevoked: false },
+      data: { isRevoked: true },
+    });
+  };
+
+  static createSession = async (
+    userId: string,
+    refreshToken: string,
+    userAgent: string | undefined,
+    ipAddress: string | undefined
+  ) => {
+    const refreshTokenHash = hashToken(refreshToken);
+    const expiresAt = new Date(Date.now() + SEVEN_DAYS);
+    await prisma.session.create({
+      data: {
+        userId,
+        refreshTokenHash,
+        userAgent,
+        ipAddress,
+        expiresAt,
+      },
+    });
+  };
+
+  static logout = async (refreshToken: string) => {
+    const refreshTokenHash = hashToken(refreshToken);
+    await prisma.session.update({
+      where: { refreshTokenHash },
+      data: {
+        isRevoked: true,
+      },
+    });
+  };
+
+  static getProfile = async (userId: string) => {
+    return await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
       },
     });
   };

@@ -1,4 +1,5 @@
-import { Response } from "express";
+import { Request } from "express";
+import { JwtPayload } from "jsonwebtoken";
 
 export type ResponseMeta = Record<string, any>;
 
@@ -16,3 +17,18 @@ export type HttpStatusCode =
   | 500 // Internal Server Error
   | 502 // Bad Gateway
   | 503; // Service Unavailable;
+
+export interface AccessTokenPayload extends JwtPayload {
+  id: string;
+  email?: string;
+  role?: string;
+  type: "access";
+}
+
+declare global {
+  namespace Express {
+    interface Request {
+      user: AccessTokenPayload;
+    }
+  }
+}

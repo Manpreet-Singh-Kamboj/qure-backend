@@ -15,4 +15,20 @@ export const registerSchema = z
     path: ["confirmPassword"],
   });
 
+export const loginSchema = z.object({
+  email: z.email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  deviceInfo: z
+    .object({
+      userAgent: z.string(),
+    })
+    .optional(),
+});
+
+export const logoutSchema = z.object({
+  refreshToken: z.string().min(1, "Refresh token is required"),
+});
+
 export type RegisterSchema = z.infer<typeof registerSchema>;
+export type LoginSchema = z.infer<typeof loginSchema>;
+export type LogoutSchema = z.infer<typeof logoutSchema>;
