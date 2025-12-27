@@ -1,6 +1,8 @@
 import { UploadedImage } from "../types";
 import { prisma } from "../../prisma/client";
 import { imageQueue } from "../queues/image.queue";
+import { getClinicCacheKey } from "../utils";
+import { redis } from "../redis";
 
 export class ClinicService {
   static createClinic = async (
@@ -44,6 +46,7 @@ export class ClinicService {
         },
       }))
     );
+    await redis.del("all-clinics");
     return clinic;
   };
 
@@ -61,8 +64,12 @@ export class ClinicService {
       longitude !== undefined &&
       radius !== undefined
     ) {
-      console.log(latitude, longitude, radius, offset, limit);
-      return await prisma.$queryRaw`
+      const cacheKey = getClinicCacheKey(latitude, longitude, radius, limit);
+      const cachedClinics = await redis.get(cacheKey);
+      if (cachedClinics) {
+        return JSON.parse(cachedClinics);
+      }
+      const clinics = await prisma.$queryRaw`
         SELECT 
           id, 
           name, 
@@ -102,13 +109,21 @@ export class ClinicService {
         OFFSET ${offset}
         LIMIT ${limit};
       `;
+      await redis.set(cacheKey, JSON.stringify(clinics), "EX", 60 * 15);
+      return clinics;
     }
-    return await prisma.clinic.findMany({
+    const cachedAllClinics = await redis.get("all-clinics");
+    if (cachedAllClinics) {
+      return JSON.parse(cachedAllClinics);
+    }
+    const allClinics = await prisma.clinic.findMany({
       where: {
         isActive: true,
       },
       skip: offset,
       take: limit,
     });
+    await redis.set("all-clinics", JSON.stringify(allClinics), "EX", 60 * 15);
+    return allClinics;
   };
 }
