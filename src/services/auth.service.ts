@@ -138,6 +138,10 @@ export class AuthService {
         email: true,
         firstName: true,
         lastName: true,
+        profilePicture: true,
+        role: true,
+        clinicId: true,
+        createdAt: true,
       },
     });
   };

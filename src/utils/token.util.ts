@@ -4,16 +4,18 @@ import { AccessTokenPayload } from "../types";
 import crypto from "crypto";
 
 export const generateAccessToken = (payload: AccessTokenPayload): string => {
-  return jwt.sign(payload, env.JWT_SECRET! as jwt.Secret, {
+  return jwt.sign(payload, env.JWT_PRIVATE_KEY! as jwt.Secret, {
     expiresIn: env.JWT_EXPIRES_IN! as jwt.SignOptions["expiresIn"],
+    algorithm: "RS256",
+    issuer: "Qure",
   });
 };
 
 export const verifyAccessToken = (token: string): AccessTokenPayload => {
-  const decoded = jwt.verify(
-    token,
-    env.JWT_SECRET! as jwt.Secret
-  ) as AccessTokenPayload;
+  const decoded = jwt.verify(token, env.JWT_PUBLIC_KEY! as jwt.Secret, {
+    algorithms: ["RS256"],
+  }) as AccessTokenPayload;
+  console.log(decoded);
   if (!decoded.id) {
     throw new Error("Invalid token");
   }
