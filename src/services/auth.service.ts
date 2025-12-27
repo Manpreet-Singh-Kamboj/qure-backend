@@ -24,6 +24,7 @@ export class AuthService {
         lastName,
         email,
         password: hashedPassword,
+        profilePicture: `https://api.dicebear.com/9.x/initials/svg?seed=${firstName} ${lastName}`,
       },
     });
   };
