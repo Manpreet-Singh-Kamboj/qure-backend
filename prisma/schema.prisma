@@ -25,6 +25,11 @@ model User {
   tokens        Token[]  @relation("PatientTokens")
   staffActivity StaffActivity[]
   sessions      Session[]
+
+  @@index([clinicId])
+  @@index([role])
+  @@index([clinicId, role])
+  @@index([isActive])
 }
 
 model Clinic {
@@ -33,12 +38,21 @@ model Clinic {
   address       String?
   latitude      Float
   longitude     Float
+  phone         String?
+  email         String?
+  website       String?
+  description   String?
+  logo          String?
+  images        String[]
   isActive      Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   staff         User[]   @relation("StaffInClinic")
   queues        Queue[] 
+  @@unique([name, latitude, longitude])
+  @@index([isActive])
+  @@index([latitude, longitude])
 }
 
 model Queue {
@@ -52,6 +66,10 @@ model Queue {
 
   clinic          Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
   tokens          Token[]
+
+  @@index([clinicId])
+  @@index([queueDate])
+  @@index([isActive])
 }
 
 model Token {
@@ -68,6 +86,12 @@ model Token {
   patient         User     @relation("PatientTokens", fields: [patientId], references: [id], onDelete: Cascade)
   queue           Queue     @relation(fields: [queueId], references: [id], onDelete: Cascade)
   staffActivity   StaffActivity[]
+
+  @@index([queueId])
+  @@index([patientId])
+  @@index([queueId, status])
+  @@index([status])
+  @@unique([queueId, tokenNumber])
 }
 
 model StaffActivity {
@@ -79,6 +103,13 @@ model StaffActivity {
 
   staff           User     @relation(fields: [staffId], references: [id], onDelete: Cascade)
   token           Token    @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+
+  @@index([staffId])
+  @@index([tokenId])
+  @@index([action])
+  @@index([createdAt])
+  @@index([tokenId, action])
+  @@unique([staffId, tokenId, action])
 }
 
 model Session {
@@ -93,6 +124,11 @@ model Session {
   updatedAt       DateTime @updatedAt
 
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, isRevoked])
+  @@index([expiresAt])
+  @@index([refreshTokenHash, isRevoked, expiresAt])
 }
 
 enum Role {

@@ -152,8 +152,12 @@ export class AuthService {
     ipAddress: string | undefined
   ) => {
     const refreshTokenHash = hashToken(refreshToken);
-    const session = await prisma.session.findUnique({
-      where: { refreshTokenHash },
+    const session = await prisma.session.findFirst({
+      where: {
+        refreshTokenHash,
+        isRevoked: false,
+        expiresAt: { gt: new Date() },
+      },
       include: {
         user: {
           select: {
@@ -165,7 +169,7 @@ export class AuthService {
       },
     });
 
-    if (!session || session.isRevoked || session.expiresAt < new Date()) {
+    if (!session) {
       throw new Error("Unauthorized");
     }
 
