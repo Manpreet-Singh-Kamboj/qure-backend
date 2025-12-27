@@ -42,6 +42,7 @@ export class AuthService {
         email: true,
         firstName: true,
         lastName: true,
+        profilePicture: true,
         role: true,
         clinicId: true,
         isActive: true,
@@ -70,6 +71,7 @@ export class AuthService {
       lastName: user.lastName,
       role: user.role,
       clinicId: user.clinicId,
+      profilePicture: user.profilePicture,
     };
 
     const accessToken = generateAccessToken({
