@@ -29,6 +29,23 @@ declare global {
   namespace Express {
     interface Request {
       user: AccessTokenPayload;
+      files?: {
+        images: string[];
+      };
     }
   }
 }
+
+export type UploadedImage = {
+  name: string;
+  data: {
+    type: "Buffer";
+    data: number[];
+  };
+  size: number;
+  encoding: string;
+  tempFilePath: string;
+  truncated: boolean;
+  mimetype: string;
+  md5: string;
+};

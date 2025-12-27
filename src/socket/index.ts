@@ -7,7 +7,7 @@ let io: Server;
 export function initializeSocket(server: HttpServer) {
   io = new Server(server, {
     cors: {
-      origin: ["http://localhost:3000"],
+      origin: ["*"],
       methods: ["GET", "POST"],
     },
   });
