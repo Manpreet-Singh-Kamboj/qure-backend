@@ -30,7 +30,8 @@ declare global {
     interface Request {
       user: AccessTokenPayload;
       files?: {
-        images: string[];
+        logo: UploadedImage;
+        images: UploadedImage[];
       };
     }
   }
@@ -38,14 +39,5 @@ declare global {
 
 export type UploadedImage = {
   name: string;
-  data: {
-    type: "Buffer";
-    data: number[];
-  };
-  size: number;
-  encoding: string;
   tempFilePath: string;
-  truncated: boolean;
-  mimetype: string;
-  md5: string;
 };

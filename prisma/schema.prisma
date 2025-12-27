@@ -43,7 +43,7 @@ model Clinic {
   website       String?
   description   String?
   logo          String?
-  images        String[]
+  images        String[]    @default([])
   isActive      Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

@@ -2,6 +2,7 @@ import express, { Express, Response } from "express";
 import { authRouter } from "./routes/auth.route";
 import fileUpload from "express-fileupload";
 import cors from "cors";
+import { clinicRouter } from "./routes/clinic.route";
 
 export function initializeExpressServer(): Express {
   const app: Express = express();
@@ -22,6 +23,7 @@ export function initializeExpressServer(): Express {
   );
 
   app.use("/api/auth", authRouter);
+  app.use("/api/clinic", clinicRouter);
 
   app.get("/health", (_, res: Response) => {
     res.status(200).json({

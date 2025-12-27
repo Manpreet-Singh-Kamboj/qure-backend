@@ -15,7 +15,6 @@ export const verifyAccessToken = (token: string): AccessTokenPayload => {
   const decoded = jwt.verify(token, env.JWT_PUBLIC_KEY! as jwt.Secret, {
     algorithms: ["RS256"],
   }) as AccessTokenPayload;
-  console.log(decoded);
   if (!decoded.id) {
     throw new Error("Invalid token");
   }

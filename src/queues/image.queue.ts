@@ -28,14 +28,24 @@ const imageWorker = new Worker(
 
 imageWorker.on("completed", async (job: Job, value) => {
   console.log(`Job ${job.id} completed! Result: ${value}`);
-  await prisma.clinic.update({
-    where: { id: job.data.clinicId },
-    data: {
-      images: {
-        push: value,
+  if (job.name === "clinic-logo-upload") {
+    await prisma.clinic.update({
+      where: { id: job.data.clinicId },
+      data: {
+        logo: value,
       },
-    },
-  });
+    });
+  }
+  if (job.name === "clinic-images-upload") {
+    await prisma.clinic.update({
+      where: { id: job.data.clinicId },
+      data: {
+        images: {
+          push: value,
+        },
+      },
+    });
+  }
 });
 
 imageWorker.on("failed", async (job: Job | undefined, error) => {
