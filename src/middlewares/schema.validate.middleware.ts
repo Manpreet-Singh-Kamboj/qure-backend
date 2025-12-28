@@ -1,21 +1,28 @@
 import { NextFunction, Request, Response } from "express";
-import { ZodType } from "zod";
 import { ResponseHandler } from "../utils/response.handler";
+import { ValidationSchemas } from "../types";
+
+const sources = ["params", "query", "body"] as const;
 
 export const validate =
-  (schema: ZodType<any>) =>
+  (schemas: ValidationSchemas) =>
   (req: Request, res: Response, next: NextFunction) => {
-    const result = schema.safeParse(req.body);
-    if (!result.success) {
-      return ResponseHandler.error(
-        res,
-        "Invalid request body",
-        400,
-        result.error.issues
-      );
+    for (const source of sources) {
+      const schema = schemas[source];
+      if (!schema) continue;
+      const result = schema.safeParse(req[source]);
+      if (!result.success) {
+        return ResponseHandler.error(
+          res,
+          `Invalid request ${source}`,
+          400,
+          result.error.issues.map((e) => ({
+            path: e.path.join("."),
+            message: e.message,
+          }))
+        );
+      }
+      req[source] = result.data;
     }
-
-    req.body = result.data;
-
     next();
   };

@@ -126,4 +126,92 @@ export class ClinicService {
     await redis.set("all-clinics", JSON.stringify(allClinics), "EX", 60 * 15);
     return allClinics;
   };
+
+  static getClinic = async (clinicId: string) => {
+    const cachedClinic = await redis.get(`clinic:${clinicId}`);
+    if (cachedClinic) {
+      return JSON.parse(cachedClinic);
+    }
+    const clinic = await prisma.clinic.findUnique({
+      where: {
+        id: clinicId,
+      },
+    });
+    if (!clinic) {
+      throw new Error("Clinic not found.");
+    }
+    await redis.set(
+      `clinic:${clinicId}`,
+      JSON.stringify(clinic),
+      "EX",
+      60 * 60 * 24
+    );
+    return clinic;
+  };
+
+  static createClinicStaff = async (clinicId: string, userId: string) => {
+    await prisma.$transaction(async (tx) => {
+      const clinic = await tx.clinic.findUnique({
+        where: { id: clinicId },
+        select: { id: true },
+      });
+
+      if (!clinic) {
+        throw new Error("Clinic not found. Please choose a valid clinic.");
+      }
+
+      const user = await tx.user.findUnique({
+        where: { id: userId },
+        select: { clinicId: true, role: true },
+      });
+
+      if (!user) {
+        throw new Error("User not found. Please choose a valid user.");
+      }
+
+      if (user.role === "ADMIN") {
+        throw new Error("Admin cannot be added as a staff member.");
+      }
+
+      if (user.clinicId) {
+        throw new Error(
+          "User already assigned as a staff member in another clinic. Please choose a different user."
+        );
+      }
+
+      await tx.user.update({
+        where: { id: userId },
+        data: { clinicId, role: "STAFF" },
+      });
+    });
+    await redis.del(`clinic-staff-members:${clinicId}`);
+  };
+
+  static getClinicStaffMembers = async (clinicId: string) => {
+    const cachedStaffMembers = await redis.get(
+      `clinic-staff-members:${clinicId}`
+    );
+    if (cachedStaffMembers) {
+      return JSON.parse(cachedStaffMembers);
+    }
+    const staffMembers = await prisma.user.findMany({
+      where: { clinicId, role: "STAFF" },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        role: true,
+        profilePicture: true,
+        createdAt: true,
+      },
+    });
+    await redis.set(
+      `clinic-staff-members:${clinicId}`,
+      JSON.stringify(staffMembers),
+      "EX",
+      60 * 60 * 24
+    );
+    return staffMembers;
+  };
 }

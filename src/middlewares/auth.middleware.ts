@@ -76,3 +76,19 @@ export const isAdmin = async (
     return ResponseHandler.error(res, "Unauthorized", 401, null);
   }
 };
+
+export const isAdminOrStaff = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    if (req.user.role !== Role.ADMIN && req.user.role !== Role.STAFF) {
+      return ResponseHandler.error(res, "Unauthorized", 401, null);
+    }
+    next();
+  } catch (error) {
+    console.error(error);
+    return ResponseHandler.error(res, "Unauthorized", 401, null);
+  }
+};

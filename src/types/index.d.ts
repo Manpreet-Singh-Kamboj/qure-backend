@@ -1,5 +1,6 @@
 import { Request } from "express";
 import { JwtPayload } from "jsonwebtoken";
+import { ZodType } from "zod";
 
 export type ResponseMeta = Record<string, any>;
 
@@ -23,6 +24,12 @@ export interface AccessTokenPayload extends JwtPayload {
   email?: string;
   role?: string;
   type: "access";
+}
+
+export interface ValidationSchemas {
+  body?: ZodType<any>;
+  params?: ZodType<any>;
+  query?: ZodType<any>;
 }
 
 declare global {

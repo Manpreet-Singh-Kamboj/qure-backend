@@ -27,5 +27,31 @@ export const getClinicsSchema = z
   })
   .optional();
 
+export const getClinicSchema = z.object({
+  clinicId: z.uuid().min(1),
+});
+
+export const createClinicStaffParamsSchema = z.object({
+  clinicId: z.uuid().min(1),
+});
+
+export const createClinicStaffBodySchema = z.object({
+  userId: z.uuid().min(1),
+});
+
+export const getClinicStaffParamsSchema = z.object({
+  clinicId: z.uuid().min(1),
+});
+
 export type CreateClinicSchema = z.infer<typeof createClinicSchema>;
 export type GetClinicsSchema = z.infer<typeof getClinicsSchema>;
+export type GetClinicSchema = z.infer<typeof getClinicSchema>;
+export type CreateClinicStaffParamsSchema = z.infer<
+  typeof createClinicStaffParamsSchema
+>;
+export type CreateClinicStaffBodySchema = z.infer<
+  typeof createClinicStaffBodySchema
+>;
+export type GetClinicStaffParamsSchema = z.infer<
+  typeof getClinicStaffParamsSchema
+>;

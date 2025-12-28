@@ -11,13 +11,17 @@ import { isAuthenticated } from "../middlewares/auth.middleware";
 
 const router: Router = Router();
 
-router.post("/register", validate(registerSchema), AuthController.register);
-router.post("/login", validate(loginSchema), AuthController.login);
-router.post("/logout", validate(logoutSchema), AuthController.logout);
+router.post(
+  "/register",
+  validate({ body: registerSchema }),
+  AuthController.register
+);
+router.post("/login", validate({ body: loginSchema }), AuthController.login);
+router.post("/logout", validate({ body: logoutSchema }), AuthController.logout);
 router.get("/me", isAuthenticated, AuthController.getProfile);
 router.post(
   "/refresh-token",
-  validate(refreshTokenSchema),
+  validate({ body: refreshTokenSchema }),
   AuthController.refreshToken
 );
 
