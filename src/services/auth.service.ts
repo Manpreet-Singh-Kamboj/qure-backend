@@ -5,6 +5,7 @@ import {
   generateRefreshToken,
   hashToken,
 } from "../utils/token.util";
+import { redis } from "../redis";
 
 const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
 
@@ -131,7 +132,11 @@ export class AuthService {
   };
 
   static getProfile = async (userId: string) => {
-    return await prisma.user.findUnique({
+    const cachedProfile = await redis.get(`user:${userId}`);
+    if (cachedProfile) {
+      return JSON.parse(cachedProfile);
+    }
+    const profile = await prisma.user.findUnique({
       where: { id: userId },
       select: {
         id: true,
@@ -144,6 +149,13 @@ export class AuthService {
         createdAt: true,
       },
     });
+    await redis.set(
+      `user:${userId}`,
+      JSON.stringify(profile),
+      "EX",
+      60 * 60 * 24
+    );
+    return profile;
   };
 
   static refreshToken = async (

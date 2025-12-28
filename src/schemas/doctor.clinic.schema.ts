@@ -1,6 +1,6 @@
 import z from "zod";
 
-export const createClinicSchema = z.object({
+export const createDoctorClinicSchema = z.object({
   name: z.string().min(1),
   address: z.string().optional(),
   latitude: z.preprocess((val) => Number(val), z.number()),
@@ -38,7 +38,7 @@ export const createClinicSchema = z.object({
     .optional(),
 });
 
-export const getClinicsSchema = z
+export const getDoctorClinicsSchema = z
   .object({
     latitude: z.preprocess((val) => Number(val), z.number()).optional(),
     longitude: z.preprocess((val) => Number(val), z.number()).optional(),
@@ -48,31 +48,31 @@ export const getClinicsSchema = z
   })
   .optional();
 
-export const getClinicSchema = z.object({
+export const getDoctorClinicSchema = z.object({
   clinicId: z.uuid().min(1),
 });
 
-export const createClinicStaffParamsSchema = z.object({
+export const createDoctorClinicStaffParamsSchema = z.object({
   clinicId: z.uuid().min(1),
 });
 
-export const createClinicStaffBodySchema = z.object({
+export const createDoctorClinicStaffBodySchema = z.object({
   userId: z.uuid().min(1),
 });
 
-export const getClinicStaffParamsSchema = z.object({
+export const getDoctorClinicStaffParamsSchema = z.object({
   clinicId: z.uuid().min(1),
 });
 
-export type CreateClinicSchema = z.infer<typeof createClinicSchema>;
-export type GetClinicsSchema = z.infer<typeof getClinicsSchema>;
-export type GetClinicSchema = z.infer<typeof getClinicSchema>;
-export type CreateClinicStaffParamsSchema = z.infer<
-  typeof createClinicStaffParamsSchema
+export type CreateDoctorClinicSchema = z.infer<typeof createDoctorClinicSchema>;
+export type GetDoctorClinicsSchema = z.infer<typeof getDoctorClinicsSchema>;
+export type GetDoctorClinicSchema = z.infer<typeof getDoctorClinicSchema>;
+export type CreateDoctorClinicStaffParamsSchema = z.infer<
+  typeof createDoctorClinicStaffParamsSchema
 >;
-export type CreateClinicStaffBodySchema = z.infer<
-  typeof createClinicStaffBodySchema
+export type CreateDoctorClinicStaffBodySchema = z.infer<
+  typeof createDoctorClinicStaffBodySchema
 >;
-export type GetClinicStaffParamsSchema = z.infer<
-  typeof getClinicStaffParamsSchema
+export type GetDoctorClinicStaffParamsSchema = z.infer<
+  typeof getDoctorClinicStaffParamsSchema
 >;

@@ -75,6 +75,9 @@ model Queue {
   @@index([clinicId])
   @@index([queueDate])
   @@index([isActive])
+  @@index([clinicId, queueDate])
+
+  @@unique([clinicId, queueDate])
 }
 
 model Token {

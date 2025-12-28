@@ -22,3 +22,11 @@ export const getClinicCacheKey = (
 
   return `nearby_clinics:${latBucket}:${lngBucket}:${radius}:${limit}`;
 };
+
+export const todayWithTime = (time: string) => {
+  const today = new Date();
+  const [hours, minutes] = time.split(":").map(Number);
+
+  today.setHours(hours, minutes, 0, 0);
+  return today;
+};

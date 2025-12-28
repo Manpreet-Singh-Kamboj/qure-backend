@@ -3,17 +3,16 @@ import {
   isAdmin,
   isAdminOrStaff,
   isAuthenticated,
-  isStaff,
 } from "../middlewares/auth.middleware";
 import { DoctorClinicController } from "../controllers/doctor.clinic.controller";
 import { validate } from "../middlewares/schema.validate.middleware";
 import {
-  createClinicSchema,
-  createClinicStaffBodySchema,
-  createClinicStaffParamsSchema,
-  getClinicSchema,
-  getClinicsSchema,
-  getClinicStaffParamsSchema,
+  createDoctorClinicSchema,
+  createDoctorClinicStaffBodySchema,
+  createDoctorClinicStaffParamsSchema,
+  getDoctorClinicSchema,
+  getDoctorClinicsSchema,
+  getDoctorClinicStaffParamsSchema,
 } from "../schemas/doctor.clinic.schema";
 
 const router: Router = Router();
@@ -22,21 +21,21 @@ router.post(
   "/",
   isAuthenticated,
   isAdmin,
-  validate({ body: createClinicSchema }),
+  validate({ body: createDoctorClinicSchema }),
   DoctorClinicController.createClinic
 );
 
 router.get(
   "/",
   isAuthenticated,
-  validate({ body: getClinicsSchema }),
+  validate({ body: getDoctorClinicsSchema }),
   DoctorClinicController.getClinics
 );
 
 router.get(
   "/:clinicId",
   isAuthenticated,
-  validate({ params: getClinicSchema }),
+  validate({ params: getDoctorClinicSchema }),
   DoctorClinicController.getClinic
 );
 
@@ -45,8 +44,8 @@ router.post(
   isAuthenticated,
   isAdmin,
   validate({
-    params: createClinicStaffParamsSchema,
-    body: createClinicStaffBodySchema,
+    params: createDoctorClinicStaffParamsSchema,
+    body: createDoctorClinicStaffBodySchema,
   }),
   DoctorClinicController.createClinicStaff
 );
@@ -55,7 +54,7 @@ router.get(
   "/:clinicId/staff",
   isAuthenticated,
   isAdminOrStaff,
-  validate({ params: getClinicStaffParamsSchema }),
+  validate({ params: getDoctorClinicStaffParamsSchema }),
   DoctorClinicController.getClinicStaffMembers
 );
 

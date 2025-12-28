@@ -48,3 +48,8 @@ export type UploadedImage = {
   name: string;
   tempFilePath: string;
 };
+
+export type OpeningHours = {
+  start: string;
+  end: string;
+};
