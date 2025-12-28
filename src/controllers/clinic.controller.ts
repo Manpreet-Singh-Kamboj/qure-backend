@@ -11,10 +11,7 @@ import {
 import { ClinicService } from "../services/clinic.service";
 
 export class ClinicController {
-  static createClinic = async (
-    req: Request<object, unknown, CreateClinicSchema>,
-    res: Response
-  ) => {
+  static createClinic = async (req: Request, res: Response) => {
     try {
       const {
         name,
@@ -25,7 +22,7 @@ export class ClinicController {
         email,
         website,
         description,
-      } = req.body;
+      } = req.body as CreateClinicSchema;
       const logo = req.files?.logo;
       const images = req.files?.images;
       if (!logo || !images) {
@@ -36,7 +33,7 @@ export class ClinicController {
           null
         );
       }
-      await ClinicService.createClinic(
+      const clinic = await ClinicService.createClinic(
         name,
         address,
         latitude,
@@ -69,18 +66,10 @@ export class ClinicController {
     }
   };
 
-  static getClinics = async (
-    req: Request<undefined, undefined, GetClinicsSchema>,
-    res: Response
-  ) => {
+  static getClinics = async (req: Request, res: Response) => {
     try {
-      const {
-        latitude,
-        longitude,
-        radius,
-        page = 1,
-        limit = 10,
-      } = req.body ?? {};
+      const { latitude, longitude, radius, page, limit } =
+        req.body || ({} as GetClinicsSchema);
       const clinics = await ClinicService.getClinics(
         latitude,
         longitude,
@@ -101,12 +90,9 @@ export class ClinicController {
     }
   };
 
-  static getClinic = async (
-    req: Request<GetClinicSchema, undefined, undefined>,
-    res: Response
-  ) => {
+  static getClinic = async (req: Request, res: Response) => {
     try {
-      const { clinicId } = req.params;
+      const { clinicId } = req.params as GetClinicSchema;
       const clinic = await ClinicService.getClinic(clinicId);
       return ResponseHandler.success(
         res,
@@ -128,17 +114,10 @@ export class ClinicController {
     }
   };
 
-  static createClinicStaff = async (
-    req: Request<
-      CreateClinicStaffParamsSchema,
-      undefined,
-      CreateClinicStaffBodySchema
-    >,
-    res: Response
-  ) => {
+  static createClinicStaff = async (req: Request, res: Response) => {
     try {
-      const { clinicId } = req.params;
-      const { userId } = req.body;
+      const { clinicId } = req.params as CreateClinicStaffParamsSchema;
+      const { userId } = req.body as CreateClinicStaffBodySchema;
       await ClinicService.createClinicStaff(clinicId, userId);
       return ResponseHandler.success(
         res,
@@ -165,7 +144,7 @@ export class ClinicController {
     res: Response
   ) => {
     try {
-      const { clinicId } = req.params;
+      const { clinicId } = req.params as GetClinicStaffParamsSchema;
       const staffMembers = await ClinicService.getClinicStaffMembers(clinicId);
       return ResponseHandler.success(
         res,
