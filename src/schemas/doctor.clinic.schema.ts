@@ -15,6 +15,27 @@ export const createClinicSchema = z.object({
   description: z.string().optional(),
   logo: z.any().optional(),
   images: z.array(z.any()).optional(),
+  openingHours: z
+    .preprocess(
+      (val: string) => JSON.parse(val),
+      z.object({
+        start: z.string(),
+        end: z.string(),
+      })
+    )
+    .optional(),
+  type: z
+    .enum([
+      "GENERAL_PRACTICE",
+      "PEDIATRICS",
+      "DERMATOLOGY",
+      "PSYCHIATRY",
+      "GYNECOLOGY",
+      "ORTHOPEDICS",
+      "ENT",
+      "DENTIST",
+    ])
+    .optional(),
 });
 
 export const getClinicsSchema = z

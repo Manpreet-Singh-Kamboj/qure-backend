@@ -21,7 +21,7 @@ model User {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   profilePicture String?
-  clinic        Clinic?  @relation("StaffInClinic",fields: [clinicId], references: [id], onDelete: Cascade)  
+  clinic        DoctorClinic?  @relation("StaffInClinic",fields: [clinicId], references: [id], onDelete: Cascade)  
   tokens        Token[]  @relation("PatientTokens")
   staffActivity StaffActivity[]
   sessions      Session[]
@@ -32,7 +32,7 @@ model User {
   @@index([isActive])
 }
 
-model Clinic {
+model DoctorClinic {
   id            String   @id @default(uuid())
   name          String
   address       String?
@@ -44,11 +44,13 @@ model Clinic {
   description   String?
   logo          String?
   images        String[]    @default([])
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  type          DoctorType  @default(GENERAL_PRACTICE)
+  openingHours  Json        @default("{\"start\":\"09:00\",\"end\":\"17:00\"}")
 
-  staff         User[]   @relation("StaffInClinic")
+  staff         User[]      @relation("StaffInClinic")
   queues        Queue[] 
   @@unique([name, latitude, longitude])
   @@index([isActive])
@@ -63,8 +65,11 @@ model Queue {
   isActive        Boolean  @default(true)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  maxQueueSize    Int      @default(50)
+  startTime       DateTime
+  endTime         DateTime
 
-  clinic          Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  clinic          DoctorClinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
   tokens          Token[]
 
   @@index([clinicId])
@@ -149,4 +154,15 @@ enum StaffAction {
   CALL
   SKIP
   COMPLETE
+}
+
+enum DoctorType {
+  GENERAL_PRACTICE
+  PEDIATRICS
+  DERMATOLOGY
+  PSYCHIATRY
+  GYNECOLOGY
+  ORTHOPEDICS
+  ENT
+  DENTIST
 }

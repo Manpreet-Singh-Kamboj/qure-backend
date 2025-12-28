@@ -29,7 +29,7 @@ const imageWorker = new Worker(
 imageWorker.on("completed", async (job: Job, value) => {
   console.log(`Job ${job.id} completed! Result: ${value}`);
   if (job.name === "clinic-logo-upload") {
-    await prisma.clinic.update({
+    await prisma.doctorClinic.update({
       where: { id: job.data.clinicId },
       data: {
         logo: value,
@@ -37,7 +37,7 @@ imageWorker.on("completed", async (job: Job, value) => {
     });
   }
   if (job.name === "clinic-images-upload") {
-    await prisma.clinic.update({
+    await prisma.doctorClinic.update({
       where: { id: job.data.clinicId },
       data: {
         images: {

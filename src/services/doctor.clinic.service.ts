@@ -3,8 +3,9 @@ import { prisma } from "../../prisma/client";
 import { imageQueue } from "../queues/image.queue";
 import { getClinicCacheKey } from "../utils";
 import { redis } from "../redis";
+import { DoctorType } from "../generated/prisma";
 
-export class ClinicService {
+export class DoctorClinicService {
   static createClinic = async (
     name: string,
     address: string | undefined,
@@ -15,9 +16,11 @@ export class ClinicService {
     website: string | undefined,
     description: string | undefined,
     logo: UploadedImage,
-    images: UploadedImage[]
+    images: UploadedImage[],
+    openingHours: { start: string; end: string } | undefined,
+    type: DoctorType | undefined
   ) => {
-    const clinic = await prisma.clinic.create({
+    const clinic = await prisma.doctorClinic.create({
       data: {
         name,
         address,
@@ -27,6 +30,8 @@ export class ClinicService {
         email,
         website,
         description,
+        openingHours,
+        type,
       },
     });
     await imageQueue.add("clinic-logo-upload", {
@@ -116,7 +121,7 @@ export class ClinicService {
     if (cachedAllClinics) {
       return JSON.parse(cachedAllClinics);
     }
-    const allClinics = await prisma.clinic.findMany({
+    const allClinics = await prisma.doctorClinic.findMany({
       where: {
         isActive: true,
       },
@@ -132,7 +137,7 @@ export class ClinicService {
     if (cachedClinic) {
       return JSON.parse(cachedClinic);
     }
-    const clinic = await prisma.clinic.findUnique({
+    const clinic = await prisma.doctorClinic.findUnique({
       where: {
         id: clinicId,
       },
@@ -151,7 +156,7 @@ export class ClinicService {
 
   static createClinicStaff = async (clinicId: string, userId: string) => {
     await prisma.$transaction(async (tx) => {
-      const clinic = await tx.clinic.findUnique({
+      const clinic = await tx.doctorClinic.findUnique({
         where: { id: clinicId },
         select: { id: true },
       });
