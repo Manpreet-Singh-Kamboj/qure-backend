@@ -9,16 +9,16 @@ export const initializeQueueHandler = (socket: Socket) => {
     try {
       socket.join(`queue:${queueId}`);
       console.log(`🟢 Socket ${socket.id} joined queue ${queueId}`);
-      getIO().to(queueId).emit("join-queue", undefined);
+      getIO().to(`queue:${queueId}`).emit("join-queue", undefined);
       const queueStatus = await QueueService.getQueueStatus(queueId);
       getIO().to(`queue:${queueId}`).emit("queue:status_update", queueStatus);
     } catch (error) {
       if (error instanceof Error) {
-        getIO().to(queueId).emit("join-queue-error", error.message);
+        getIO().to(`queue:${queueId}`).emit("join-queue-error", error.message);
       } else {
         console.error(error);
         getIO()
-          .to(queueId)
+          .to(`queue:${queueId}`)
           .emit(
             "join-queue-error",
             "Something went wrong. Please try again later."
@@ -31,14 +31,14 @@ export const initializeQueueHandler = (socket: Socket) => {
     try {
       socket.leave(`queue:${queueId}`);
       console.log(`🔴 Socket ${socket.id} left queue ${queueId}`);
-      getIO().to(queueId).emit("leave-queue", undefined);
+      getIO().to(`queue:${queueId}`).emit("leave-queue", undefined);
     } catch (error) {
       if (error instanceof Error) {
-        getIO().to(queueId).emit("leave-queue-error", error.message);
+        getIO().to(`queue:${queueId}`).emit("leave-queue-error", error.message);
       } else {
         console.error(error);
         getIO()
-          .to(queueId)
+          .to(`queue:${queueId}`)
           .emit(
             "leave-queue-error",
             "Something went wrong. Please try again later."
@@ -65,11 +65,13 @@ export const initializeQueueHandler = (socket: Socket) => {
       getIO().to(`queue:${queueId}`).emit("queue:status_update", queueStatus);
     } catch (error) {
       if (error instanceof Error) {
-        getIO().to(queueId).emit("queue:call_next_error", error.message);
+        getIO()
+          .to(`queue:${queueId}`)
+          .emit("queue:call_next_error", error.message);
       } else {
         console.error(error);
         getIO()
-          .to(queueId)
+          .to(`queue:${queueId}`)
           .emit(
             "queue:call_next_error",
             "Something went wrong. Please try again later."
@@ -89,11 +91,13 @@ export const initializeQueueHandler = (socket: Socket) => {
       getIO().to(`queue:${queueId}`).emit("queue:status_update", queueStatus);
     } catch (error) {
       if (error instanceof Error) {
-        getIO().to(queueId).emit("queue:skip_token_error", error.message);
+        getIO()
+          .to(`queue:${queueId}`)
+          .emit("queue:skip_token_error", error.message);
       } else {
         console.error(error);
         getIO()
-          .to(queueId)
+          .to(`queue:${queueId}`)
           .emit(
             "queue:skip_token_error",
             "Something went wrong. Please try again later."
@@ -115,11 +119,13 @@ export const initializeQueueHandler = (socket: Socket) => {
         getIO().to(`queue:${queueId}`).emit("queue:status_update", queueStatus);
       } catch (error) {
         if (error instanceof Error) {
-          getIO().to(queueId).emit("queue:complete_token_error", error.message);
+          getIO()
+            .to(`queue:${queueId}`)
+            .emit("queue:complete_token_error", error.message);
         } else {
           console.error(error);
           getIO()
-            .to(queueId)
+            .to(`queue:${queueId}`)
             .emit(
               "queue:complete_token_error",
               "Something went wrong. Please try again later."
