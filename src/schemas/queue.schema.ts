@@ -9,7 +9,7 @@ export const initializeQueueBodySchema = z.object({
 });
 
 export const getQueueStatusParamsSchema = z.object({
-  clinicId: z.uuid().min(1),
+  queueId: z.uuid().min(1),
 });
 
 export type InitializeQueueParamsSchema = z.infer<

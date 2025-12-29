@@ -4,6 +4,7 @@ import fileUpload from "express-fileupload";
 import cors from "cors";
 import { clinicRouter } from "./routes/clinic.route";
 import { queueRouter } from "./routes/queue.route";
+import { tokenRouter } from "./routes/token.route";
 
 export function initializeExpressServer(): Express {
   const app: Express = express();
@@ -26,6 +27,7 @@ export function initializeExpressServer(): Express {
   app.use("/api/auth", authRouter);
   app.use("/api/clinic", clinicRouter);
   app.use("/api/queues", queueRouter);
+  app.use("/api/tokens", tokenRouter);
 
   app.get("/health", (_, res: Response) => {
     res.status(200).json({

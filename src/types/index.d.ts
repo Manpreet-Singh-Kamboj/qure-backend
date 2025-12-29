@@ -1,5 +1,6 @@
 import { Request } from "express";
 import { JwtPayload } from "jsonwebtoken";
+import { Socket } from "socket.io";
 import { ZodType } from "zod";
 
 export type ResponseMeta = Record<string, any>;
@@ -41,6 +42,10 @@ declare global {
         images: UploadedImage[];
       };
     }
+  }
+
+  interface Socket {
+    user: AccessTokenPayload;
   }
 }
 

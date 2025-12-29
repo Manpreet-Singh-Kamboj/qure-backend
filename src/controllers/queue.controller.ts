@@ -40,8 +40,8 @@ export class QueueController {
 
   static async getQueueStatus(req: Request, res: Response) {
     try {
-      const { clinicId } = req.params as GetQueueStatusParamsSchema;
-      const queueStatus = await QueueService.getQueueStatus(clinicId);
+      const { queueId } = req.params as GetQueueStatusParamsSchema;
+      const queueStatus = await QueueService.getQueueStatus(queueId);
       return ResponseHandler.success(
         res,
         "Queue status fetched successfully",

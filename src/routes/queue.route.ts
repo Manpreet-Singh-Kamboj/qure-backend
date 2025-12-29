@@ -25,7 +25,7 @@ router.post(
 );
 
 router.get(
-  "/:clinicId/status",
+  "/:queueId/status",
   isAuthenticated,
   validate({
     params: getQueueStatusParamsSchema,

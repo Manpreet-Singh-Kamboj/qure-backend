@@ -52,47 +52,55 @@ export class QueueService {
     });
   }
 
-  static async getQueueStatus(clinicId: string) {
-    const cachedQueueStatus = await redis.get(`queue:status:${clinicId}`);
-    if (cachedQueueStatus) {
-      return JSON.parse(cachedQueueStatus);
-    }
+  static async getQueueStatus(queueId: string) {
+    const cachedQueueStatus = await redis.get(`queue:status:${queueId}`);
+    if (cachedQueueStatus) return JSON.parse(cachedQueueStatus);
+
     const queueStatus = await prisma.$transaction(async (tx) => {
-      const clinic = await prisma.doctorClinic.findUnique({
-        where: {
-          id: clinicId,
-        },
-      });
-      if (!clinic) {
-        throw new Error("Clinic not found");
-      }
       const queueDate = new Date();
       queueDate.setHours(0, 0, 0, 0);
+
       const queue = await tx.queue.findFirst({
-        where: {
-          clinicId,
-          queueDate,
-        },
+        where: { id: queueId, queueDate },
       });
-      if (!queue) {
-        throw new Error("Queue not found");
-      }
-      const tokensCount = await tx.token.count({
+      if (!queue) throw new Error("Queue not found");
+
+      const waitingCount = await tx.token.count({
         where: {
           queueId: queue.id,
+          status: "WAITING",
+          tokenNumber: { gt: queue.currentTokenNo },
         },
       });
+
       return {
-        ...queue,
-        waitingCount: Math.max(0, tokensCount - queue.currentTokenNo - 1),
+        queueId: queue.id,
+        currentTokenNo: queue.currentTokenNo,
+        waitingCount,
+        startTime: queue.startTime,
+        endTime: queue.endTime,
       };
     });
+
     await redis.set(
-      `queue:status:${clinicId}`,
+      `queue:status:${queueId}`,
       JSON.stringify(queueStatus),
       "EX",
       60 * 15
     );
+
     return queueStatus;
+  }
+
+  static async getQueueById(queueId: string) {
+    const queue = await prisma.queue.findUnique({
+      where: {
+        id: queueId,
+      },
+    });
+    if (!queue) {
+      throw new Error("Queue not found");
+    }
+    return queue;
   }
 }
