@@ -7,7 +7,7 @@ import { redis } from "../../redis";
 export const initializeQueueHandler = (socket: Socket) => {
   socket.on("join-queue", async (queueId: string) => {
     try {
-      socket.join(queueId);
+      socket.join(`queue:${queueId}`);
       console.log(`🟢 Socket ${socket.id} joined queue ${queueId}`);
       getIO().to(queueId).emit("join-queue", undefined);
       const queueStatus = await QueueService.getQueueStatus(queueId);
@@ -29,7 +29,7 @@ export const initializeQueueHandler = (socket: Socket) => {
 
   socket.on("leave-queue", async (queueId: string) => {
     try {
-      socket.leave(queueId);
+      socket.leave(`queue:${queueId}`);
       console.log(`🔴 Socket ${socket.id} left queue ${queueId}`);
       getIO().to(queueId).emit("leave-queue", undefined);
     } catch (error) {
