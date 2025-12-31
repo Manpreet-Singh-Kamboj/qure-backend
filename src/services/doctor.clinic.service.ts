@@ -1,9 +1,9 @@
 import { UploadedImage } from "../types/index.js";
 import { prisma } from "../prisma/client.js";
 import { imageQueue } from "../queues/image.queue.js";
-import { getClinicCacheKey } from "../utils/index.js";
 import { redis } from "../redis/index.js";
 import { DoctorType, Prisma } from "@prisma/client";
+import { JobsOptions } from "bullmq";
 
 export class DoctorClinicService {
   static createClinic = async (
@@ -16,7 +16,7 @@ export class DoctorClinicService {
     website: string | undefined,
     description: string | undefined,
     logo: UploadedImage,
-    images: UploadedImage[],
+    images: UploadedImage | UploadedImage[],
     openingHours: { start: string; end: string } | undefined,
     type: DoctorType | undefined
   ) => {
@@ -34,23 +34,47 @@ export class DoctorClinicService {
         type,
       },
     });
-    await imageQueue.add("clinic-logo-upload", {
-      clinicId: clinic.id,
-      image: logo,
-    });
-    await imageQueue.addBulk(
-      images.map((image) => ({
-        name: "clinic-images-upload",
-        data: {
-          clinicId: clinic.id,
-          image,
-        },
-        opts: {
-          removeOnComplete: true,
-          removeOnFail: true,
-        },
-      }))
+
+    const defaultJobOptions: JobsOptions = {
+      attempts: 3,
+      backoff: {
+        type: "exponential",
+        delay: 2000,
+      },
+      removeOnComplete: true,
+      removeOnFail: true,
+    };
+
+    await imageQueue.add(
+      "clinic-logo-upload",
+      {
+        clinicId: clinic.id,
+        image: logo,
+      },
+      defaultJobOptions
     );
+
+    if (Array.isArray(images)) {
+      await imageQueue.addBulk(
+        images.map((image) => ({
+          name: "clinic-images-upload",
+          data: {
+            clinicId: clinic.id,
+            image,
+          },
+          opts: defaultJobOptions,
+        }))
+      );
+    } else {
+      await imageQueue.add(
+        "clinic-images-upload",
+        {
+          clinicId: clinic.id,
+          image: images,
+        },
+        defaultJobOptions
+      );
+    }
     await redis.del("all-clinics");
     return clinic;
   };
