@@ -1,5 +1,5 @@
 import { UploadedImage } from "../types";
-import { prisma } from "../../prisma/client";
+import { prisma } from "../prisma/client";
 import { imageQueue } from "../queues/image.queue";
 import { getClinicCacheKey } from "../utils";
 import { redis } from "../redis";

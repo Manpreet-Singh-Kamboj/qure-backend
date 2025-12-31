@@ -1,6 +1,5 @@
-import { Request } from "express";
+import fileUpload from "express-fileupload";
 import { JwtPayload } from "jsonwebtoken";
-import { Socket } from "socket.io";
 import { ZodType } from "zod";
 
 export type ResponseMeta = Record<string, any>;
@@ -37,10 +36,6 @@ declare global {
   namespace Express {
     interface Request {
       user: AccessTokenPayload;
-      files?: {
-        logo: UploadedImage;
-        images: UploadedImage[];
-      };
     }
   }
 
@@ -57,4 +52,9 @@ export type UploadedImage = {
 export type OpeningHours = {
   start: string;
   end: string;
+};
+
+export type ClinicFiles = fileUpload.FileArray & {
+  logo?: fileUpload.UploadedFile;
+  images?: fileUpload.UploadedFile[];
 };

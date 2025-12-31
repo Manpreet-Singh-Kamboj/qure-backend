@@ -1,4 +1,4 @@
-import { prisma } from "../../prisma/client";
+import { prisma } from "../prisma/client";
 import { todayWithTime } from "../utils";
 import { OpeningHours } from "../types";
 import { redis } from "../redis";

@@ -1,6 +1,6 @@
 import { Job, Queue, Worker, bullMQRedis } from "../redis/index";
 import { uploadImage } from "../utils/cloudinary.uploader";
-import { prisma } from "../../prisma/client";
+import { prisma } from "../prisma/client";
 
 export const imageQueue = new Queue("image-upload", {
   connection: bullMQRedis,

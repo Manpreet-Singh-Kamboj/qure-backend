@@ -9,6 +9,7 @@ import {
   GetDoctorClinicStaffParamsSchema,
 } from "../schemas/doctor.clinic.schema";
 import { DoctorClinicService } from "../services/doctor.clinic.service";
+import { ClinicFiles } from "../types";
 
 export class DoctorClinicController {
   static createClinic = async (req: Request, res: Response) => {
@@ -25,9 +26,8 @@ export class DoctorClinicController {
         openingHours,
         type,
       } = req.body as CreateDoctorClinicSchema;
-      const logo = req.files?.logo;
-      const images = req.files?.images;
-      if (!logo || !images) {
+      const files = req.files as ClinicFiles | null;
+      if (!files || !files?.logo || !files?.images) {
         return ResponseHandler.error(
           res,
           "Logo and images are required.",
@@ -35,6 +35,7 @@ export class DoctorClinicController {
           null
         );
       }
+      const { logo, images } = files;
       await DoctorClinicService.createClinic(
         name,
         address,

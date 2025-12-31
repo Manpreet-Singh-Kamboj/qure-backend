@@ -1,4 +1,4 @@
-import { prisma } from "../../prisma/client";
+import { prisma } from "../prisma/client";
 import { redis } from "../redis";
 
 export class TokenService {
