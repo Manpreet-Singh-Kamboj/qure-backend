@@ -91,7 +91,7 @@ export class DoctorClinicService {
       ];
 
       if (query) {
-        conditions.push(Prisma.sql`name ILIKE ${"%" + query + "%"}`);
+        conditions.push(Prisma.sql`name ILIKE ${`%${query}%`}`);
       }
 
       if (type) {
