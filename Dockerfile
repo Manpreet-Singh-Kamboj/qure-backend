@@ -18,4 +18,4 @@ RUN npm ci --omit=dev
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/dist ./dist
 
-CMD ["node", "dist/index.js"]
+CMD ["npm", "run", "image:worker", "&&", "npm", "run", "dev"]
