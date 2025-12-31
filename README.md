@@ -176,22 +176,22 @@ http://localhost:3000/api
 
 ### API Overview
 
-| Method | Endpoint                    | Auth Required | Role         | Description                      |
-| ------ | --------------------------- | ------------- | ------------ | -------------------------------- |
-| `GET`  | `/health`                   | ❌            | Public       | Health check                     |
-| `POST` | `/api/auth/register`        | ❌            | Public       | Register new user                |
-| `POST` | `/api/auth/login`           | ❌            | Public       | Login user                       |
-| `POST` | `/api/auth/logout`          | ❌            | Public       | Logout & revoke refresh token    |
-| `POST` | `/api/auth/refresh-token`   | ❌            | Public       | Refresh access token             |
-| `GET`  | `/api/auth/me`              | ✅            | Any          | Get current user profile         |
-| `POST` | `/api/clinic`               | ✅            | Admin        | Create new clinic                |
-| `GET`  | `/api/clinic`               | ✅            | Any          | Get clinics (with geo-filter)    |
-| `GET`  | `/api/clinic/:clinicId`     | ✅            | Any          | Get clinic by ID                 |
-| `POST` | `/api/clinic/:clinicId/staff` | ✅          | Admin        | Add staff to clinic              |
-| `GET`  | `/api/clinic/:clinicId/staff` | ✅          | Admin/Staff  | Get clinic staff members         |
-| `POST` | `/api/queues/init/:clinicId`  | ✅          | Admin/Staff  | Initialize daily queue           |
-| `GET`  | `/api/queues/:queueId/status` | ✅          | Any          | Get queue status                 |
-| `POST` | `/api/tokens`               | ✅            | Patient      | Generate token for queue         |
+| Method | Endpoint                      | Auth Required | Role        | Description                   |
+| ------ | ----------------------------- | ------------- | ----------- | ----------------------------- |
+| `GET`  | `/health`                     | ❌            | Public      | Health check                  |
+| `POST` | `/api/auth/register`          | ❌            | Public      | Register new user             |
+| `POST` | `/api/auth/login`             | ❌            | Public      | Login user                    |
+| `POST` | `/api/auth/logout`            | ❌            | Public      | Logout & revoke refresh token |
+| `POST` | `/api/auth/refresh-token`     | ❌            | Public      | Refresh access token          |
+| `GET`  | `/api/auth/me`                | ✅            | Any         | Get current user profile      |
+| `POST` | `/api/clinic`                 | ✅            | Admin       | Create new clinic             |
+| `GET`  | `/api/clinic`                 | ✅            | Any         | Get clinics (with geo-filter) |
+| `GET`  | `/api/clinic/:clinicId`       | ✅            | Any         | Get clinic by ID              |
+| `POST` | `/api/clinic/:clinicId/staff` | ✅            | Admin       | Add staff to clinic           |
+| `GET`  | `/api/clinic/:clinicId/staff` | ✅            | Admin/Staff | Get clinic staff members      |
+| `POST` | `/api/queues/init/:clinicId`  | ✅            | Admin/Staff | Initialize daily queue        |
+| `GET`  | `/api/queues/:queueId/status` | ✅            | Any         | Get queue status              |
+| `POST` | `/api/tokens`                 | ✅            | Patient     | Generate token for queue      |
 
 ---
 
@@ -225,13 +225,13 @@ Content-Type: application/json
 
 **Request Body:**
 
-| Field             | Type     | Required | Validation                        |
-| ----------------- | -------- | -------- | --------------------------------- |
-| `firstName`       | `string` | ✅       | Min 3 characters                  |
-| `lastName`        | `string` | ✅       | Min 3 characters                  |
-| `email`           | `string` | ✅       | Valid email format                |
-| `password`        | `string` | ✅       | Min 6 characters                  |
-| `confirmPassword` | `string` | ✅       | Must match `password`             |
+| Field             | Type     | Required | Validation            |
+| ----------------- | -------- | -------- | --------------------- |
+| `firstName`       | `string` | ✅       | Min 3 characters      |
+| `lastName`        | `string` | ✅       | Min 3 characters      |
+| `email`           | `string` | ✅       | Valid email format    |
+| `password`        | `string` | ✅       | Min 6 characters      |
+| `confirmPassword` | `string` | ✅       | Must match `password` |
 
 **Example:**
 
@@ -254,10 +254,10 @@ Content-Type: application/json
 
 **Request Body:**
 
-| Field        | Type     | Required | Validation                        |
-| ------------ | -------- | -------- | --------------------------------- |
-| `email`      | `string` | ✅       | Valid email format                |
-| `password`   | `string` | ✅       | Min 6 characters                  |
+| Field        | Type     | Required | Validation                                   |
+| ------------ | -------- | -------- | -------------------------------------------- |
+| `email`      | `string` | ✅       | Valid email format                           |
+| `password`   | `string` | ✅       | Min 6 characters                             |
 | `deviceInfo` | `object` | ❌       | `{ userAgent: string }` for session tracking |
 
 **Example:**
@@ -311,9 +311,9 @@ Content-Type: application/json
 
 **Request Body:**
 
-| Field          | Type     | Required | Description                          |
-| -------------- | -------- | -------- | ------------------------------------ |
-| `refreshToken` | `string` | ✅       | Valid refresh token from login       |
+| Field          | Type     | Required | Description                                  |
+| -------------- | -------- | -------- | -------------------------------------------- |
+| `refreshToken` | `string` | ✅       | Valid refresh token from login               |
 | `deviceInfo`   | `object` | ❌       | `{ userAgent: string }` for session tracking |
 
 **Example:**
@@ -336,9 +336,9 @@ Content-Type: application/json
 
 **Request Body:**
 
-| Field          | Type     | Required | Description                    |
-| -------------- | -------- | -------- | ------------------------------ |
-| `refreshToken` | `string` | ✅       | Refresh token to revoke        |
+| Field          | Type     | Required | Description             |
+| -------------- | -------- | -------- | ----------------------- |
+| `refreshToken` | `string` | ✅       | Refresh token to revoke |
 
 **Example:**
 
@@ -362,20 +362,20 @@ Content-Type: multipart/form-data
 
 **Request Body:**
 
-| Field          | Type       | Required | Validation / Description                                                                 |
-| -------------- | ---------- | -------- | ---------------------------------------------------------------------------------------- |
-| `name`         | `string`   | ✅       | Min 1 character                                                                          |
-| `latitude`     | `number`   | ✅       | Clinic's latitude coordinate                                                             |
-| `longitude`    | `number`   | ✅       | Clinic's longitude coordinate                                                            |
-| `address`      | `string`   | ❌       | Street address                                                                           |
-| `phone`        | `string`   | ❌       | Must be exactly 10 digits                                                                |
-| `email`        | `string`   | ❌       | Valid email format                                                                       |
-| `website`      | `string`   | ❌       | Valid URL                                                                                |
-| `description`  | `string`   | ❌       | Clinic description                                                                       |
-| `logo`         | `file`     | ❌       | Image file (processed via BullMQ → Cloudinary)                                           |
-| `images`       | `file[]`   | ❌       | Multiple image files                                                                     |
-| `openingHours` | `json`     | ❌       | `{"start": "09:00", "end": "17:00"}` (default: 09:00-17:00)                              |
-| `type`         | `enum`     | ❌       | One of: `GENERAL_PRACTICE`, `PEDIATRICS`, `DERMATOLOGY`, `PSYCHIATRY`, `GYNECOLOGY`, `ORTHOPEDICS`, `ENT`, `DENTIST` |
+| Field          | Type     | Required | Validation / Description                                                                                             |
+| -------------- | -------- | -------- | -------------------------------------------------------------------------------------------------------------------- |
+| `name`         | `string` | ✅       | Min 1 character                                                                                                      |
+| `latitude`     | `number` | ✅       | Clinic's latitude coordinate                                                                                         |
+| `longitude`    | `number` | ✅       | Clinic's longitude coordinate                                                                                        |
+| `address`      | `string` | ❌       | Street address                                                                                                       |
+| `phone`        | `string` | ❌       | Must be exactly 10 digits                                                                                            |
+| `email`        | `string` | ❌       | Valid email format                                                                                                   |
+| `website`      | `string` | ❌       | Valid URL                                                                                                            |
+| `description`  | `string` | ❌       | Clinic description                                                                                                   |
+| `logo`         | `file`   | ❌       | Image file (processed via BullMQ → Cloudinary)                                                                       |
+| `images`       | `file[]` | ❌       | Multiple image files                                                                                                 |
+| `openingHours` | `json`   | ❌       | `{"start": "09:00", "end": "17:00"}` (default: 09:00-17:00)                                                          |
+| `type`         | `enum`   | ❌       | One of: `GENERAL_PRACTICE`, `PEDIATRICS`, `DERMATOLOGY`, `PSYCHIATRY`, `GYNECOLOGY`, `ORTHOPEDICS`, `ENT`, `DENTIST` |
 
 **Example:**
 
@@ -401,13 +401,13 @@ Authorization: Bearer <access_token>
 
 **Query Parameters:**
 
-| Parameter   | Type     | Required | Default | Description                                         |
-| ----------- | -------- | -------- | ------- | --------------------------------------------------- |
-| `latitude`  | `number` | ❌       | -       | User's current latitude (for proximity search)      |
-| `longitude` | `number` | ❌       | -       | User's current longitude (for proximity search)     |
-| `radius`    | `number` | ❌       | -       | Search radius in kilometers                         |
-| `page`      | `number` | ❌       | `1`     | Page number for pagination                          |
-| `limit`     | `number` | ❌       | `10`    | Number of results per page                          |
+| Parameter   | Type     | Required | Default | Description                                     |
+| ----------- | -------- | -------- | ------- | ----------------------------------------------- |
+| `latitude`  | `number` | ❌       | -       | User's current latitude (for proximity search)  |
+| `longitude` | `number` | ❌       | -       | User's current longitude (for proximity search) |
+| `radius`    | `number` | ❌       | -       | Search radius in kilometers                     |
+| `page`      | `number` | ❌       | `1`     | Page number for pagination                      |
+| `limit`     | `number` | ❌       | `10`    | Number of results per page                      |
 
 **Example Requests:**
 
@@ -473,9 +473,9 @@ Content-Type: application/json
 
 **Request Body:**
 
-| Field    | Type   | Required | Validation                     |
-| -------- | ------ | -------- | ------------------------------ |
-| `userId` | `uuid` | ✅       | Valid UUID of existing user    |
+| Field    | Type   | Required | Validation                  |
+| -------- | ------ | -------- | --------------------------- |
+| `userId` | `uuid` | ✅       | Valid UUID of existing user |
 
 > ⚠️ **Note:** User must not be already assigned to another clinic and cannot be an ADMIN
 
@@ -522,9 +522,9 @@ Content-Type: application/json
 
 **Request Body:**
 
-| Field          | Type     | Required | Default | Description                           |
-| -------------- | -------- | -------- | ------- | ------------------------------------- |
-| `maxQueueSize` | `number` | ❌       | `50`    | Maximum number of tokens for the day  |
+| Field          | Type     | Required | Default | Description                          |
+| -------------- | -------- | -------- | ------- | ------------------------------------ |
+| `maxQueueSize` | `number` | ❌       | `50`    | Maximum number of tokens for the day |
 
 > ⚠️ **Note:** Only one queue can be created per clinic per day. Queue times are derived from clinic's `openingHours`.
 
@@ -603,6 +603,7 @@ Content-Type: application/json
 | `queueId` | `uuid` | ✅       | Valid UUID of an active queue for today |
 
 > ⚠️ **Validation Rules:**
+>
 > - Patient cannot have multiple active (WAITING) tokens in the same queue
 > - Queue must exist and be active for the current date
 > - Token numbers are auto-incremented atomically within a transaction
