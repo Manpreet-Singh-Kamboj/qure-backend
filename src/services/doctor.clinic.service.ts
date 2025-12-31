@@ -71,9 +71,11 @@ export class DoctorClinicService {
       longitude !== undefined &&
       radius !== undefined
     ) {
-      const cacheKey = getClinicCacheKey(latitude, longitude, radius, limit);
+      const cacheKey = `clinics:geo:lat=${latitude}:lng=${longitude}:r=${radius}:p=${page}:l=${limit}:q=${
+        query ?? ""
+      }:t=${type ?? ""}`;
       const cachedClinics = await redis.get(cacheKey);
-      if (cachedClinics && !query && !type) {
+      if (cachedClinics) {
         return JSON.parse(cachedClinics);
       }
 
@@ -95,66 +97,109 @@ export class DoctorClinicService {
       }
 
       if (type) {
-        conditions.push(Prisma.sql`type = ${type}::"DoctorType"`);
+        conditions.push(Prisma.sql`type::text = ${type}`);
       }
 
       const whereClause = Prisma.sql`WHERE ${Prisma.join(conditions, " AND ")}`;
 
-      const clinics = await prisma.$queryRaw`
-        SELECT 
-          id, 
-          name, 
-          address, 
-          latitude, 
-          longitude, 
-          phone, 
-          email, 
-          website, 
-          description, 
-          logo, 
-          images, 
-          type,
-          "isActive", 
-          "createdAt", 
-          "updatedAt",
-          6371 * acos(
-            LEAST(1, GREATEST(-1,
-              cos(radians(${latitude})) *
-              cos(radians(latitude)) *
-              cos(radians(longitude) - radians(${longitude})) +
-              sin(radians(${latitude})) *
-              sin(radians(latitude))
-            ))
-          ) AS distance_km
-        FROM "DoctorClinic"
-        ${whereClause}
-        ORDER BY distance_km ASC
-        OFFSET ${offset}
-        LIMIT ${limit};
-      `;
+      const [clinics, countResult] = await Promise.all([
+        prisma.$queryRaw`
+          SELECT 
+            id, 
+            name, 
+            address, 
+            latitude, 
+            longitude, 
+            phone, 
+            email, 
+            website, 
+            description, 
+            logo, 
+            images, 
+            type,
+            "isActive", 
+            "createdAt", 
+            "updatedAt",
+            6371 * acos(
+              LEAST(1, GREATEST(-1,
+                cos(radians(${latitude})) *
+                cos(radians(latitude)) *
+                cos(radians(longitude) - radians(${longitude})) +
+                sin(radians(${latitude})) *
+                sin(radians(latitude))
+              ))
+            ) AS distance_km
+          FROM "DoctorClinic"
+          ${whereClause}
+          ORDER BY distance_km ASC
+          OFFSET ${offset}
+          LIMIT ${limit};
+        `,
+        prisma.$queryRaw<[{ count: bigint }]>`
+          SELECT COUNT(*)::int as count
+          FROM "DoctorClinic"å
+          ${whereClause};
+        `,
+      ]);
 
-      if (!query && !type) {
-        await redis.set(cacheKey, JSON.stringify(clinics), "EX", 60 * 15);
-      }
-      return clinics;
+      const totalCount = Number(countResult[0].count);
+      const totalPages = Math.ceil(totalCount / limit);
+
+      const response = {
+        clinics,
+        pagination: {
+          page,
+          limit,
+          totalCount,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1,
+        },
+      };
+
+      await redis.set(cacheKey, JSON.stringify(response), "EX", 60 * 15);
+      return response;
     }
-    const cachedAllClinics = await redis.get("all-clinics");
-    if (cachedAllClinics && !query && !type && !limit && !page) {
-      return JSON.parse(cachedAllClinics);
+
+    const cacheKey = `clinics:page=${page}:limit=${limit}:query=${
+      query ?? ""
+    }:type=${type ?? ""}`;
+    const cachedData = await redis.get(cacheKey);
+    if (cachedData) {
+      return JSON.parse(cachedData);
     }
-    const allClinics = await prisma.doctorClinic.findMany({
-      where: {
-        isActive: true,
-        ...(query ? { name: { contains: query, mode: "insensitive" } } : {}),
-        ...(type ? { type } : {}),
+    const where = {
+      isActive: true,
+      ...(query
+        ? { name: { contains: query, mode: "insensitive" as const } }
+        : {}),
+      ...(type ? { type } : {}),
+    };
+    const [allClinics, totalCount] = await Promise.all([
+      prisma.doctorClinic.findMany({
+        where,
+        skip: offset,
+        take: limit,
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.doctorClinic.count({ where }),
+    ]);
+    const totalPages = Math.ceil(totalCount / limit);
+    const response = {
+      clinics: allClinics,
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
       },
-      skip: offset,
-      take: limit,
-    });
-    if (query === undefined && type === undefined) {
-      await redis.set("all-clinics", JSON.stringify(allClinics), "EX", 60 * 15);
-    }
-    return allClinics;
+    };
+
+    await redis.set(cacheKey, JSON.stringify(response), "EX", 60 * 15);
+
+    return response;
   };
 
   static getClinic = async (clinicId: string) => {

@@ -430,28 +430,51 @@ GET /api/clinic?type=DENTIST&page=1&limit=10
 GET /api/clinic?latitude=40.7128&longitude=-74.0060&radius=10&type=DENTIST&page=1&limit=10
 ```
 
-> 🚀 **Cached:** Results are cached in Redis for 15 minutes
+> 🚀 **Cached:** Results are cached in Redis for 15 minutes (unique cache key per filter combination)
 >
 > 📍 **Geolocation:** When `latitude`, `longitude`, and `radius` are provided, uses Haversine formula to calculate distances and returns clinics sorted by proximity with `distance_km` field
 
-**Response (with geolocation):**
+**Response (with pagination):**
 
 ```json
 {
   "success": true,
-  "data": [
-    {
-      "id": "uuid",
-      "name": "City Health Clinic",
-      "address": "123 Main Street",
-      "latitude": 40.7128,
-      "longitude": -74.006,
-      "distance_km": 0.5,
-      ...
+  "data": {
+    "clinics": [
+      {
+        "id": "uuid",
+        "name": "City Health Clinic",
+        "address": "123 Main Street",
+        "latitude": 40.7128,
+        "longitude": -74.006,
+        "phone": "1234567890",
+        "email": "contact@cityclinic.com",
+        "type": "GENERAL_PRACTICE",
+        "distance_km": 0.5
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 10,
+      "totalCount": 47,
+      "totalPages": 5,
+      "hasNextPage": true,
+      "hasPrevPage": false
     }
-  ]
+  }
 }
 ```
+
+**Pagination Object:**
+
+| Field         | Type      | Description                             |
+| ------------- | --------- | --------------------------------------- |
+| `page`        | `number`  | Current page number                     |
+| `limit`       | `number`  | Results per page                        |
+| `totalCount`  | `number`  | Total number of matching clinics        |
+| `totalPages`  | `number`  | Total number of pages                   |
+| `hasNextPage` | `boolean` | Whether there are more pages after this |
+| `hasPrevPage` | `boolean` | Whether there are pages before this     |
 
 #### Get Clinic by ID
 
