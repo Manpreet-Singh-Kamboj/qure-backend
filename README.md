@@ -830,23 +830,17 @@ Create a `.env` file in the root directory:
 
 ```env
 # Server
-PORT=3000
-NODE_ENV=development
-
-# Database
-DATABASE_DIRECT_URL=postgresql://user:password@localhost:5432/qure
-
-# Redis
-REDIS_URL=redis://localhost:6379
-
-# JWT
-JWT_ACCESS_SECRET=your-access-secret-key
-JWT_REFRESH_SECRET=your-refresh-secret-key
-
-# Cloudinary
-CLOUDINARY_CLOUD_NAME=your-cloud-name
-CLOUDINARY_API_KEY=your-api-key
-CLOUDINARY_API_SECRET=your-api-secret
+PORT=
+DATABASE_URL=
+DATABASE_DIRECT_URL=
+JWT_PRIVATE_KEY= #RSA Private Key
+JWT_PUBLIC_KEY= #RSA Public Key
+JWT_EXPIRES_IN=
+CLOUDINARY_URL=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+CLOUDINARY_CLOUD_NAME=
+REDIS_URL=
 ```
 
 ---
