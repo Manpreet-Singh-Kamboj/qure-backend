@@ -1,6 +1,6 @@
 import { v2 as cloudinary, UploadApiOptions } from "cloudinary";
-import { env } from "../config/dotenv.config";
-import { UploadedImage } from "../types";
+import { env } from "../config/dotenv.config.js";
+import { UploadedImage } from "../types/index.js";
 
 cloudinary.config({
   secure: true,

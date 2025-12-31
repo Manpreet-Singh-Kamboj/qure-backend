@@ -1,11 +1,11 @@
-import { prisma } from "../prisma/client";
+import { prisma } from "../prisma/client.js";
 import bcrypt from "bcryptjs";
 import {
   generateAccessToken,
   generateRefreshToken,
   hashToken,
-} from "../utils/token.util";
-import { redis } from "../redis";
+} from "../utils/token.util.js";
+import { redis } from "../redis/index.js";
 
 const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
 

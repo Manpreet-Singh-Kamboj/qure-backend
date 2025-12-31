@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { ResponseHandler } from "../utils/response.handler";
-import { ValidationSchemas } from "../types";
+import { ResponseHandler } from "../utils/response.handler.js";
+import { ValidationSchemas } from "../types/index.js";
 
 const sources = ["params", "query", "body"] as const;
 

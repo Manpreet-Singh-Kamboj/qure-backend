@@ -1,7 +1,7 @@
 import { Server as HttpServer } from "node:http";
 import { Server, Socket } from "socket.io";
-import { handleConnection } from "./handlers/connection";
-import { verifyAccessToken } from "../utils/token.util";
+import { handleConnection } from "./handlers/connection.js";
+import { verifyAccessToken } from "../utils/token.util.js";
 
 let ioInstance: Server;
 

@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { TokenController } from "../controllers/token.controller";
-import { isAuthenticated, isPatient } from "../middlewares/auth.middleware";
-import { validate } from "../middlewares/schema.validate.middleware";
-import { generateTokenForClinicSchema } from "../schemas/token.schema";
+import { TokenController } from "../controllers/token.controller.js";
+import { isAuthenticated, isPatient } from "../middlewares/auth.middleware.js";
+import { validate } from "../middlewares/schema.validate.middleware.js";
+import { generateTokenForClinicSchema } from "../schemas/token.schema.js";
 
 const router: Router = Router();
 

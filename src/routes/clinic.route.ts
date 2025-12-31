@@ -3,9 +3,9 @@ import {
   isAdmin,
   isAdminOrStaff,
   isAuthenticated,
-} from "../middlewares/auth.middleware";
-import { DoctorClinicController } from "../controllers/doctor.clinic.controller";
-import { validate } from "../middlewares/schema.validate.middleware";
+} from "../middlewares/auth.middleware.js";
+import { DoctorClinicController } from "../controllers/doctor.clinic.controller.js";
+import { validate } from "../middlewares/schema.validate.middleware.js";
 import {
   createDoctorClinicSchema,
   createDoctorClinicStaffBodySchema,
@@ -13,7 +13,7 @@ import {
   getDoctorClinicSchema,
   getDoctorClinicsSchema,
   getDoctorClinicStaffParamsSchema,
-} from "../schemas/doctor.clinic.schema";
+} from "../schemas/doctor.clinic.schema.js";
 
 const router: Router = Router();
 

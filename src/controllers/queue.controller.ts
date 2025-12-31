@@ -3,9 +3,9 @@ import {
   GetQueueStatusParamsSchema,
   InitializeQueueBodySchema,
   InitializeQueueParamsSchema,
-} from "../schemas/queue.schema";
-import { QueueService } from "../services/queue.service";
-import { ResponseHandler } from "../utils/response.handler";
+} from "../schemas/queue.schema.js";
+import { QueueService } from "../services/queue.service.js";
+import { ResponseHandler } from "../utils/response.handler.js";
 
 export class QueueController {
   static async initializeQueue(req: Request, res: Response) {

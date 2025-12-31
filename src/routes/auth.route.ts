@@ -1,13 +1,13 @@
 import { Router } from "express";
-import { validate } from "../middlewares/schema.validate.middleware";
+import { validate } from "../middlewares/schema.validate.middleware.js";
 import {
   loginSchema,
   logoutSchema,
   refreshTokenSchema,
   registerSchema,
-} from "../schemas/auth.schema";
-import { AuthController } from "../controllers/auth.controller";
-import { isAuthenticated } from "../middlewares/auth.middleware";
+} from "../schemas/auth.schema.js";
+import { AuthController } from "../controllers/auth.controller.js";
+import { isAuthenticated } from "../middlewares/auth.middleware.js";
 
 const router: Router = Router();
 

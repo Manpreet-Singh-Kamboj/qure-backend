@@ -1,5 +1,5 @@
-import { prisma } from "../prisma/client";
-import { redis } from "../redis";
+import { prisma } from "../prisma/client.js";
+import { redis } from "../redis/index.js";
 
 export class TokenService {
   static generateTokenForClinic = async (

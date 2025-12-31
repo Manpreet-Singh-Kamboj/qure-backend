@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { ResponseHandler } from "../utils/response.handler";
-import { verifyAccessToken } from "../utils/token.util";
-import { Role } from "../generated/prisma";
+import { ResponseHandler } from "../utils/response.handler.js";
+import { verifyAccessToken } from "../utils/token.util.js";
+import { Role } from "@prisma/client";
 
 export const isAuthenticated = async (
   req: Request,

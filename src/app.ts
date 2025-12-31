@@ -1,10 +1,10 @@
 import express, { Express, Response } from "express";
-import { authRouter } from "./routes/auth.route";
+import { authRouter } from "./routes/auth.route.js";
 import fileUpload from "express-fileupload";
 import cors from "cors";
-import { clinicRouter } from "./routes/clinic.route";
-import { queueRouter } from "./routes/queue.route";
-import { tokenRouter } from "./routes/token.route";
+import { clinicRouter } from "./routes/clinic.route.js";
+import { queueRouter } from "./routes/queue.route.js";
+import { tokenRouter } from "./routes/token.route.js";
 
 export function initializeExpressServer(): Express {
   const app: Express = express();

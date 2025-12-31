@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { HttpStatusCode, ResponseMeta } from "../types";
+import { HttpStatusCode, ResponseMeta } from "../types/index.js";
 import { Socket } from "socket.io";
 
 export class ResponseHandler<T = any> {

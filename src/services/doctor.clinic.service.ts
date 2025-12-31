@@ -1,9 +1,9 @@
-import { UploadedImage } from "../types";
-import { prisma } from "../prisma/client";
-import { imageQueue } from "../queues/image.queue";
-import { getClinicCacheKey } from "../utils";
-import { redis } from "../redis";
-import { DoctorType } from "../generated/prisma";
+import { UploadedImage } from "../types/index.js";
+import { prisma } from "../prisma/client.js";
+import { imageQueue } from "../queues/image.queue.js";
+import { getClinicCacheKey } from "../utils/index.js";
+import { redis } from "../redis/index.js";
+import { DoctorType } from "@prisma/client";
 
 export class DoctorClinicService {
   static createClinic = async (

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { ResponseHandler } from "../utils/response.handler";
+import { ResponseHandler } from "../utils/response.handler.js";
 import {
   CreateDoctorClinicSchema,
   CreateDoctorClinicStaffBodySchema,
@@ -7,9 +7,9 @@ import {
   GetDoctorClinicSchema,
   GetDoctorClinicsSchema,
   GetDoctorClinicStaffParamsSchema,
-} from "../schemas/doctor.clinic.schema";
-import { DoctorClinicService } from "../services/doctor.clinic.service";
-import { ClinicFiles } from "../types";
+} from "../schemas/doctor.clinic.schema.js";
+import { DoctorClinicService } from "../services/doctor.clinic.service.js";
+import { ClinicFiles } from "../types/index.js";
 
 export class DoctorClinicController {
   static createClinic = async (req: Request, res: Response) => {

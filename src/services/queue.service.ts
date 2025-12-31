@@ -1,7 +1,7 @@
-import { prisma } from "../prisma/client";
-import { todayWithTime } from "../utils";
-import { OpeningHours } from "../types";
-import { redis } from "../redis";
+import { prisma } from "../prisma/client.js";
+import { todayWithTime } from "../utils/index.js";
+import { OpeningHours } from "../types/index.js";
+import { redis } from "../redis/index.js";
 
 export class QueueService {
   static async initializeQueue(

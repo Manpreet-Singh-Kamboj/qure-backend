@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
-import { ResponseHandler } from "../utils/response.handler";
+import { ResponseHandler } from "../utils/response.handler.js";
 import {
   LoginSchema,
   LogoutSchema,
   RefreshTokenSchema,
   RegisterSchema,
-} from "../schemas/auth.schema";
-import { AuthService } from "../services/auth.service";
-import { getClientIp } from "../utils";
+} from "../schemas/auth.schema.js";
+import { AuthService } from "../services/auth.service.js";
+import { getClientIp } from "../utils/index.js";
 
 export class AuthController {
   static register = async (req: Request, res: Response) => {

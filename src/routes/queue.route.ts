@@ -2,14 +2,14 @@ import { Router } from "express";
 import {
   isAdminOrStaff,
   isAuthenticated,
-} from "../middlewares/auth.middleware";
-import { validate } from "../middlewares/schema.validate.middleware";
+} from "../middlewares/auth.middleware.js";
+import { validate } from "../middlewares/schema.validate.middleware.js";
 import {
   getQueueStatusParamsSchema,
   initializeQueueBodySchema,
   initializeQueueParamsSchema,
-} from "../schemas/queue.schema";
-import { QueueController } from "../controllers/queue.controller";
+} from "../schemas/queue.schema.js";
+import { QueueController } from "../controllers/queue.controller.js";
 
 const router = Router();
 

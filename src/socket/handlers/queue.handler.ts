@@ -1,8 +1,8 @@
 import { Socket } from "socket.io";
-import { TokenService } from "../../services/token.service";
-import { getIO } from "..";
-import { QueueService } from "../../services/queue.service";
-import { redis } from "../../redis";
+import { TokenService } from "../../services/token.service.js";
+import { getIO } from "../index.js";
+import { QueueService } from "../../services/queue.service.js";
+import { redis } from "../../redis/index.js";
 
 export const initializeQueueHandler = (socket: Socket) => {
   socket.on("join-queue", async (queueId: string) => {

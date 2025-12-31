@@ -1,5 +1,5 @@
-import { env } from "../config/dotenv.config";
-import { PrismaClient } from "../generated/prisma";
+import { env } from "../config/dotenv.config.js";
+import { PrismaClient } from "@prisma/client";
 
 declare global {
   var prisma: PrismaClient | undefined;

@@ -1,6 +1,6 @@
-import { env } from "../config/dotenv.config";
+import { env } from "../config/dotenv.config.js";
 import jwt from "jsonwebtoken";
-import { AccessTokenPayload } from "../types";
+import { AccessTokenPayload } from "../types/index.js";
 import crypto from "crypto";
 
 export const generateAccessToken = (payload: AccessTokenPayload): string => {

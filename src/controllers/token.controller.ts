@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { ResponseHandler } from "../utils/response.handler";
-import { GenerateTokenForClinicSchema } from "../schemas/token.schema";
-import { TokenService } from "../services/token.service";
+import { ResponseHandler } from "../utils/response.handler.js";
+import { GenerateTokenForClinicSchema } from "../schemas/token.schema.js";
+import { TokenService } from "../services/token.service.js";
 
 export class TokenController {
   static generateTokenForClinic = async (req: Request, res: Response) => {
