@@ -4,6 +4,8 @@ import { imageQueue } from "../queues/image.queue.js";
 import { redis } from "../redis/index.js";
 import { DoctorType, Prisma } from "@prisma/client";
 import { JobsOptions } from "bullmq";
+import { getBufferAndType } from "../utils/index.js";
+import sharp from "sharp";
 
 export class DoctorClinicService {
   static createClinic = async (
@@ -15,8 +17,8 @@ export class DoctorClinicService {
     email: string | undefined,
     website: string | undefined,
     description: string | undefined,
-    logo: UploadedImage,
-    images: UploadedImage | UploadedImage[],
+    logo: UploadedImage | string,
+    images: UploadedImage | UploadedImage[] | string[],
     openingHours: { start: string; end: string } | undefined,
     type: DoctorType | undefined
   ) => {
@@ -45,36 +47,45 @@ export class DoctorClinicService {
       removeOnFail: true,
     };
 
+    const { buffer: logoBuffer, type: logoType } = await getBufferAndType(logo);
+    const smallLogoBuffer = await sharp(logoBuffer)
+      .resize(1024, 1024, { fit: "inside" })
+      .jpeg({ quality: 70 })
+      .toBuffer();
+
     await imageQueue.add(
       "clinic-logo-upload",
       {
         clinicId: clinic.id,
-        image: logo,
+        image: smallLogoBuffer,
+        type: "jpeg",
       },
       defaultJobOptions
     );
 
-    if (Array.isArray(images)) {
-      await imageQueue.addBulk(
-        images.map((image) => ({
-          name: "clinic-images-upload",
-          data: {
-            clinicId: clinic.id,
-            image,
-          },
-          opts: defaultJobOptions,
-        }))
-      );
-    } else {
-      await imageQueue.add(
-        "clinic-images-upload",
-        {
-          clinicId: clinic.id,
-          image: images,
-        },
-        defaultJobOptions
-      );
-    }
+    const imgs = Array.isArray(images) ? images : [images];
+    await imageQueue.addBulk(
+      await Promise.all(
+        imgs.map(async (img) => {
+          const { buffer: imageBuffer, type: imageType } =
+            await getBufferAndType(img);
+          const smallImageBuffer = await sharp(imageBuffer)
+            .resize(1024, 1024, { fit: "inside" })
+            .jpeg({ quality: 70 })
+            .toBuffer();
+          return {
+            name: "clinic-images-upload",
+            data: {
+              clinicId: clinic.id,
+              image: smallImageBuffer,
+              type: "jpeg",
+            },
+            opts: defaultJobOptions,
+          };
+        })
+      )
+    );
+
     await redis.del("all-clinics");
     return clinic;
   };

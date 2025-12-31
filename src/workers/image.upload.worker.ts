@@ -9,8 +9,11 @@ const imageWorker = new Worker(
       `Processing Job ${job.id} with data ${JSON.stringify(job.data)}`
     );
     try {
-      const { image, clinicId } = job.data;
-      const imageUrl = await uploadImage(image);
+      let { image, type, clinicId } = job.data;
+      if (image.data && Array.isArray(image.data)) {
+        image = Buffer.from(image.data);
+      }
+      const imageUrl = await uploadImage(image, type);
       if (job.name === "clinic-logo-upload") {
         await prisma.doctorClinic.update({
           where: { id: clinicId },

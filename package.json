@@ -23,8 +23,10 @@
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "express-fileupload": "^1.5.2",
+    "file-type": "^21.2.0",
     "ioredis": "^5.8.2",
     "jsonwebtoken": "^9.0.3",
+    "sharp": "^0.34.5",
     "socket.io": "^4.8.2",
     "zod": "^4.2.1"
   },

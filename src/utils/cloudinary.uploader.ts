@@ -1,6 +1,5 @@
-import { v2 as cloudinary, UploadApiOptions } from "cloudinary";
+import { v2 as cloudinary } from "cloudinary";
 import { env } from "../config/dotenv.config.js";
-import { UploadedImage } from "../types/index.js";
 
 cloudinary.config({
   secure: true,
@@ -9,14 +8,11 @@ cloudinary.config({
   cloud_name: env.CLOUDINARY_CLOUD_NAME,
 });
 
-export const uploadImage = async (image: UploadedImage) => {
-  const options: UploadApiOptions = {
+export const uploadImage = async (image: Buffer, type = "jpeg") => {
+  const base64 = image.toString("base64");
+  const uploadInput = `data:image/${type};base64,${base64}`;
+  const result = await cloudinary.uploader.upload(uploadInput, {
     resource_type: "image",
-  };
-  const result = await cloudinary.uploader.upload(image.tempFilePath, options);
+  });
   return result.secure_url;
-};
-
-export const uploadImages = async (images: UploadedImage[]) => {
-  return await Promise.all(images.map(uploadImage));
 };

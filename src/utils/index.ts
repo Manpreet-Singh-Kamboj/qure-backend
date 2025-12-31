@@ -1,4 +1,6 @@
 import { Request } from "express";
+import { UploadedImage } from "../types";
+import fs from "node:fs/promises";
 
 export const getClientIp = (req: Request): string | undefined => {
   const forwarded = req.headers["x-forwarded-for"];
@@ -29,4 +31,22 @@ export const todayWithTime = (time: string) => {
 
   today.setHours(hours, minutes, 0, 0);
   return today;
+};
+
+export const getBufferAndType = async (
+  input: UploadedImage | string
+): Promise<{ buffer: Buffer; type: string }> => {
+  let buffer: Buffer;
+
+  if (typeof input === "string") {
+    const base64Data = input.replace(/^data:image\/\w+;base64,/, "");
+    buffer = Buffer.from(base64Data, "base64");
+  } else {
+    buffer = await fs.readFile(input.tempFilePath);
+  }
+
+  const FileType = await import("file-type");
+  const detected = await FileType.fileTypeFromBuffer(buffer);
+  const type = detected?.ext || "jpeg";
+  return { buffer, type };
 };

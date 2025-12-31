@@ -55,6 +55,8 @@ export type OpeningHours = {
 };
 
 export type ClinicFiles = fileUpload.FileArray & {
-  logo?: fileUpload.UploadedFile;
-  images?: fileUpload.UploadedFile[];
+  logo?: fileUpload.UploadedFile | string;
+  images?: fileUpload.UploadedFile[] | string[];
 };
+
+export type ImageType = Buffer | UploadedImage | string;
