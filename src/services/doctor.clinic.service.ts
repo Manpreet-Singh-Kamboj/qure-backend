@@ -249,7 +249,7 @@ export class DoctorClinicService {
   };
 
   static createClinicStaff = async (clinicId: string, userId: string) => {
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const clinic = await tx.doctorClinic.findUnique({
         where: { id: clinicId },
         select: { id: true },

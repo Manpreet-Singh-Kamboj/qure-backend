@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  qure-backend:
+    image: manpreet3033/qure-backend
+    container_name: qure-backend
+    command: npm run dev
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    restart: unless-stopped
+    depends_on:
+      - redis
+
+  image-worker:
+    image: manpreet3033/qure-backend
+    container_name: image-worker
+    command: npm run image:worker
+    env_file:
+      - .env
+    restart: unless-stopped
+    depends_on:
+      - redis
+
+volumes:
+  redis_data:
