@@ -3,7 +3,7 @@ import { prisma } from "../prisma/client.js";
 import { imageQueue } from "../queues/image.queue.js";
 import { getClinicCacheKey } from "../utils/index.js";
 import { redis } from "../redis/index.js";
-import { DoctorType } from "@prisma/client";
+import { DoctorType, Prisma } from "@prisma/client";
 
 export class DoctorClinicService {
   static createClinic = async (
@@ -60,7 +60,9 @@ export class DoctorClinicService {
     longitude: number | undefined,
     radius: number | undefined,
     page: number = 1,
-    limit: number = 10
+    limit: number = 10,
+    query: string | undefined,
+    type: DoctorType | undefined
   ) => {
     const offset = (page - 1) * limit;
 
@@ -71,9 +73,33 @@ export class DoctorClinicService {
     ) {
       const cacheKey = getClinicCacheKey(latitude, longitude, radius, limit);
       const cachedClinics = await redis.get(cacheKey);
-      if (cachedClinics) {
+      if (cachedClinics && !query && !type) {
         return JSON.parse(cachedClinics);
       }
+
+      const conditions: Prisma.Sql[] = [
+        Prisma.sql`"isActive" = true`,
+        Prisma.sql`6371 * acos(
+          LEAST(1, GREATEST(-1,
+            cos(radians(${latitude})) *
+            cos(radians(latitude)) *
+            cos(radians(longitude) - radians(${longitude})) +
+            sin(radians(${latitude})) *
+            sin(radians(latitude))
+          ))
+        ) < ${radius}`,
+      ];
+
+      if (query) {
+        conditions.push(Prisma.sql`name ILIKE ${"%" + query + "%"}`);
+      }
+
+      if (type) {
+        conditions.push(Prisma.sql`type = ${type}::"DoctorType"`);
+      }
+
+      const whereClause = Prisma.sql`WHERE ${Prisma.join(conditions, " AND ")}`;
+
       const clinics = await prisma.$queryRaw`
         SELECT 
           id, 
@@ -87,6 +113,7 @@ export class DoctorClinicService {
           description, 
           logo, 
           images, 
+          type,
           "isActive", 
           "createdAt", 
           "updatedAt",
@@ -99,36 +126,34 @@ export class DoctorClinicService {
               sin(radians(latitude))
             ))
           ) AS distance_km
-        FROM "Clinic"
-        WHERE "isActive" = true
-          AND 6371 * acos(
-            LEAST(1, GREATEST(-1,
-              cos(radians(${latitude})) *
-              cos(radians(latitude)) *
-              cos(radians(longitude) - radians(${longitude})) +
-              sin(radians(${latitude})) *
-              sin(radians(latitude))
-            ))
-          ) < ${radius}
+        FROM "DoctorClinic"
+        ${whereClause}
         ORDER BY distance_km ASC
         OFFSET ${offset}
         LIMIT ${limit};
       `;
-      await redis.set(cacheKey, JSON.stringify(clinics), "EX", 60 * 15);
+
+      if (!query && !type) {
+        await redis.set(cacheKey, JSON.stringify(clinics), "EX", 60 * 15);
+      }
       return clinics;
     }
     const cachedAllClinics = await redis.get("all-clinics");
-    if (cachedAllClinics) {
+    if (cachedAllClinics && !query && !type && !limit && !page) {
       return JSON.parse(cachedAllClinics);
     }
     const allClinics = await prisma.doctorClinic.findMany({
       where: {
         isActive: true,
+        ...(query ? { name: { contains: query, mode: "insensitive" } } : {}),
+        ...(type ? { type } : {}),
       },
       skip: offset,
       take: limit,
     });
-    await redis.set("all-clinics", JSON.stringify(allClinics), "EX", 60 * 15);
+    if (query === undefined && type === undefined) {
+      await redis.set("all-clinics", JSON.stringify(allClinics), "EX", 60 * 15);
+    }
     return allClinics;
   };
 

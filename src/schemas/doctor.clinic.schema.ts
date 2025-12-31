@@ -45,6 +45,19 @@ export const getDoctorClinicsSchema = z
     radius: z.preprocess((val) => Number(val), z.number()).optional(),
     page: z.preprocess((val) => Number(val), z.number()).default(1),
     limit: z.preprocess((val) => Number(val), z.number()).default(10),
+    query: z.string().optional(),
+    type: z
+      .enum([
+        "GENERAL_PRACTICE",
+        "PEDIATRICS",
+        "DERMATOLOGY",
+        "PSYCHIATRY",
+        "GYNECOLOGY",
+        "ORTHOPEDICS",
+        "ENT",
+        "DENTIST",
+      ])
+      .optional(),
   })
   .optional();
 

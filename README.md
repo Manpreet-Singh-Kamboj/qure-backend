@@ -401,13 +401,15 @@ Authorization: Bearer <access_token>
 
 **Query Parameters:**
 
-| Parameter   | Type     | Required | Default | Description                                     |
-| ----------- | -------- | -------- | ------- | ----------------------------------------------- |
-| `latitude`  | `number` | ❌       | -       | User's current latitude (for proximity search)  |
-| `longitude` | `number` | ❌       | -       | User's current longitude (for proximity search) |
-| `radius`    | `number` | ❌       | -       | Search radius in kilometers                     |
-| `page`      | `number` | ❌       | `1`     | Page number for pagination                      |
-| `limit`     | `number` | ❌       | `10`    | Number of results per page                      |
+| Parameter   | Type     | Required | Default | Description                                                                                                                         |
+| ----------- | -------- | -------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `latitude`  | `number` | ❌       | -       | User's current latitude (for proximity search)                                                                                      |
+| `longitude` | `number` | ❌       | -       | User's current longitude (for proximity search)                                                                                     |
+| `radius`    | `number` | ❌       | -       | Search radius in kilometers                                                                                                         |
+| `query`     | `string` | ❌       | -       | Search clinics by name (case-insensitive)                                                                                           |
+| `type`      | `enum`   | ❌       | -       | Filter by clinic type: `GENERAL_PRACTICE`, `PEDIATRICS`, `DERMATOLOGY`, `PSYCHIATRY`, `GYNECOLOGY`, `ORTHOPEDICS`, `ENT`, `DENTIST` |
+| `page`      | `number` | ❌       | `1`     | Page number for pagination                                                                                                          |
+| `limit`     | `number` | ❌       | `10`    | Number of results per page                                                                                                          |
 
 **Example Requests:**
 
@@ -417,6 +419,15 @@ GET /api/clinic?page=1&limit=20
 
 # Find clinics within 5km radius of user location
 GET /api/clinic?latitude=40.7128&longitude=-74.0060&radius=5&page=1&limit=10
+
+# Search clinics by name
+GET /api/clinic?query=city%20health&page=1&limit=10
+
+# Filter by clinic type
+GET /api/clinic?type=DENTIST&page=1&limit=10
+
+# Combined: Find dentists within 10km, sorted by distance
+GET /api/clinic?latitude=40.7128&longitude=-74.0060&radius=10&type=DENTIST&page=1&limit=10
 ```
 
 > 🚀 **Cached:** Results are cached in Redis for 15 minutes
@@ -842,5 +853,5 @@ src/
 ---
 
 <p align="center">
-  Built with ❤️ by <a href="https://github.com/yourusername">Manpreet Singh</a>
+  Built with ❤️ by <a href="https://github.com/Manpreet-Singh-Kamboj">Manpreet Singh</a>
 </p>
