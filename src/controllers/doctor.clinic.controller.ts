@@ -74,7 +74,7 @@ export class DoctorClinicController {
   static getClinics = async (req: Request, res: Response) => {
     try {
       const { latitude, longitude, radius, page, limit, query, type } =
-        req.body || ({} as GetDoctorClinicsSchema);
+        req.query as unknown as NonNullable<GetDoctorClinicsSchema>;
       const clinics = await DoctorClinicService.getClinics(
         latitude,
         longitude,

@@ -22,7 +22,14 @@ export const validate =
           }))
         );
       }
-      req[source] = result.data;
+
+      if (source === "query") {
+        const target = req[source] as Record<string, unknown>;
+        Object.keys(target).forEach((key) => delete target[key]);
+        Object.assign(target, result.data);
+      } else {
+        req[source] = result.data;
+      }
     }
     next();
   };
