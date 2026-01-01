@@ -99,14 +99,15 @@ export class DoctorClinicService {
     query: string | undefined,
     type: DoctorType | undefined
   ) => {
-    const offset = (page - 1) * limit;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const offset = (pageNumber - 1) * limitNumber;
 
     if (
       latitude !== undefined &&
       longitude !== undefined &&
       radius !== undefined
     ) {
-      // Ensure numeric types for PostgreSQL radians() function
       const lat = Number(latitude);
       const lng = Number(longitude);
       const rad = Number(radius);
@@ -173,7 +174,7 @@ export class DoctorClinicService {
           ${whereClause}
           ORDER BY distance_km ASC
           OFFSET ${offset}
-          LIMIT ${limit};
+          LIMIT ${limitNumber};
         `,
         prisma.$queryRaw<[{ count: bigint }]>`
           SELECT COUNT(*)::int as count
@@ -183,17 +184,17 @@ export class DoctorClinicService {
       ]);
 
       const totalCount = Number(countResult[0].count);
-      const totalPages = Math.ceil(totalCount / limit);
+      const totalPages = Math.ceil(totalCount / limitNumber);
 
       const response = {
         clinics,
         pagination: {
-          page,
-          limit,
+          page: pageNumber,
+          limit: limitNumber,
           totalCount,
           totalPages,
-          hasNextPage: page < totalPages,
-          hasPrevPage: page > 1,
+          hasNextPage: pageNumber < totalPages,
+          hasPrevPage: pageNumber > 1,
         },
       };
 
@@ -219,21 +220,21 @@ export class DoctorClinicService {
       prisma.doctorClinic.findMany({
         where,
         skip: offset,
-        take: limit,
+        take: limitNumber,
         orderBy: { createdAt: "desc" },
       }),
       prisma.doctorClinic.count({ where }),
     ]);
-    const totalPages = Math.ceil(totalCount / limit);
+    const totalPages = Math.ceil(totalCount / limitNumber);
     const response = {
       clinics: allClinics,
       pagination: {
-        page,
-        limit,
+        page: pageNumber,
+        limit: limitNumber,
         totalCount,
         totalPages,
-        hasNextPage: page < totalPages,
-        hasPrevPage: page > 1,
+        hasNextPage: pageNumber < totalPages,
+        hasPrevPage: pageNumber > 1,
       },
     };
 
