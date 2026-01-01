@@ -6,6 +6,7 @@
   <img src="https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white" alt="Prisma" />
   <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis" />
   <img src="https://img.shields.io/badge/Socket.io-010101?style=for-the-badge&logo=socketdotio&logoColor=white" alt="Socket.IO" />
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
 </p>
 
 # 🏥 Qure Backend
@@ -19,6 +20,7 @@
 - [Tech Stack](#-tech-stack)
 - [Architecture](#-architecture)
 - [Getting Started](#-getting-started)
+- [Docker Deployment](#-docker-deployment)
 - [API Documentation](#-api-documentation)
 - [WebSocket Events](#-websocket-events)
 - [Database Schema](#-database-schema)
@@ -102,6 +104,7 @@ Qure is a comprehensive queue management solution for healthcare facilities. It 
 | **Authentication**   | JWT (jsonwebtoken) |
 | **File Upload**      | Cloudinary         |
 | **Password Hashing** | bcryptjs           |
+| **Containerization** | Docker & Compose   |
 
 ## 🏗 Architecture
 
@@ -142,6 +145,7 @@ Qure is a comprehensive queue management solution for healthcare facilities. It 
 - PostgreSQL 14+
 - Redis 7+
 - Cloudinary account (for image uploads)
+- Docker & Docker Compose (optional, for containerized deployment)
 
 ### Installation
 
@@ -165,6 +169,106 @@ npm run build
 # Start the server
 npm run dev
 ```
+
+## 🐳 Docker Deployment
+
+The project is fully containerized using Docker with multi-stage builds for optimized production images.
+
+### Docker Image
+
+The Dockerfile uses a multi-stage build approach:
+
+1. **Builder Stage**: Installs dependencies, generates Prisma client, and compiles TypeScript
+2. **Runner Stage**: Contains only production dependencies and compiled code for a smaller image footprint
+
+```dockerfile
+# Build image locally
+docker build -t qure-backend .
+
+# Run container
+docker run -p 8080:8080 --env-file .env qure-backend
+```
+
+### Docker Compose
+
+The easiest way to run the entire stack is with Docker Compose:
+
+```bash
+# Start all services (backend, image worker, redis)
+docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# Stop all services
+docker compose down
+
+# Stop and remove volumes
+docker compose down -v
+```
+
+### Services Overview
+
+| Service        | Container Name | Port   | Description                        |
+| -------------- | -------------- | ------ | ---------------------------------- |
+| `qure-backend` | qure-backend   | `8080` | Main API server with Socket.IO     |
+| `image-worker` | image-worker   | -      | BullMQ worker for image processing |
+| `redis`        | redis          | `6379` | Redis for caching and job queues   |
+
+### Docker Compose Configuration
+
+```yaml
+version: "3.8"
+
+services:
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  qure-backend:
+    image: manpreet3033/qure-backend
+    container_name: qure-backend
+    command: npm run dev
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    restart: unless-stopped
+    depends_on:
+      - redis
+
+  image-worker:
+    image: manpreet3033/qure-backend
+    container_name: image-worker
+    command: npm run image:worker
+    env_file:
+      - .env
+    restart: unless-stopped
+    depends_on:
+      - redis
+
+volumes:
+  redis_data:
+```
+
+### Environment Setup for Docker
+
+Ensure your `.env` file contains the correct configuration:
+
+```env
+# For Docker Compose, use service names for internal networking
+REDIS_URL=redis://redis:6379
+
+# External PostgreSQL (or add postgres service to docker-compose)
+DATABASE_URL=postgresql://user:password@host:5432/qure_db
+```
+
+> 💡 **Tip**: When running with Docker Compose, services can communicate using their service names (e.g., `redis` instead of `localhost`).
 
 ## 📚 API Documentation
 
@@ -848,23 +952,25 @@ REDIS_URL=
 ## 📁 Project Structure
 
 ```
-src/
-├── config/          # Configuration files
-├── controllers/     # Request handlers
-├── middlewares/     # Express middlewares
-├── prisma/          # Database schema & migrations
-├── queues/          # BullMQ job definitions
-├── redis/           # Redis client configuration
-├── routes/          # API route definitions
-├── schemas/         # Zod validation schemas
-├── services/        # Business logic layer
-├── socket/          # Socket.IO handlers
-│   └── handlers/    # Event handlers
-├── types/           # TypeScript type definitions
-├── utils/           # Utility functions
-├── app.ts           # Express app initialization
-├── server.ts        # HTTP server setup
-└── index.ts         # Application entry point
+├── Dockerfile           # Multi-stage Docker build
+├── docker-compose.yml   # Docker Compose orchestration
+├── src/
+│   ├── config/          # Configuration files
+│   ├── controllers/     # Request handlers
+│   ├── middlewares/     # Express middlewares
+│   ├── prisma/          # Database schema & migrations
+│   ├── queues/          # BullMQ job definitions
+│   ├── redis/           # Redis client configuration
+│   ├── routes/          # API route definitions
+│   ├── schemas/         # Zod validation schemas
+│   ├── services/        # Business logic layer
+│   ├── socket/          # Socket.IO handlers
+│   │   └── handlers/    # Event handlers
+│   ├── types/           # TypeScript type definitions
+│   ├── utils/           # Utility functions
+│   ├── app.ts           # Express app initialization
+│   ├── server.ts        # HTTP server setup
+│   └── index.ts         # Application entry point
 ```
 
 ---
