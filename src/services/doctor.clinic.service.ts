@@ -106,7 +106,12 @@ export class DoctorClinicService {
       longitude !== undefined &&
       radius !== undefined
     ) {
-      const cacheKey = `clinics:geo:lat=${latitude}:lng=${longitude}:r=${radius}:p=${page}:l=${limit}:q=${
+      // Ensure numeric types for PostgreSQL radians() function
+      const lat = Number(latitude);
+      const lng = Number(longitude);
+      const rad = Number(radius);
+
+      const cacheKey = `clinics:geo:lat=${lat}:lng=${lng}:r=${rad}:p=${page}:l=${limit}:q=${
         query ?? ""
       }:t=${type ?? ""}`;
       const cachedClinics = await redis.get(cacheKey);
@@ -118,13 +123,13 @@ export class DoctorClinicService {
         Prisma.sql`"isActive" = true`,
         Prisma.sql`6371 * acos(
           LEAST(1, GREATEST(-1,
-            cos(radians(${latitude})) *
+            cos(radians(${lat})) *
             cos(radians(latitude)) *
-            cos(radians(longitude) - radians(${longitude})) +
-            sin(radians(${latitude})) *
+            cos(radians(longitude) - radians(${lng})) +
+            sin(radians(${lat})) *
             sin(radians(latitude))
           ))
-        ) < ${radius}`,
+        ) < ${rad}`,
       ];
 
       if (query) {
@@ -157,10 +162,10 @@ export class DoctorClinicService {
             "updatedAt",
             6371 * acos(
               LEAST(1, GREATEST(-1,
-                cos(radians(${latitude})) *
+                cos(radians(${lat})) *
                 cos(radians(latitude)) *
-                cos(radians(longitude) - radians(${longitude})) +
-                sin(radians(${latitude})) *
+                cos(radians(longitude) - radians(${lng})) +
+                sin(radians(${lat})) *
                 sin(radians(latitude))
               ))
             ) AS distance_km
