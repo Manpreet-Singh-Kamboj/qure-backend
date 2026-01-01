@@ -28,7 +28,7 @@ router.post(
 router.get(
   "/",
   isAuthenticated,
-  validate({ body: getDoctorClinicsSchema }),
+  validate({ query: getDoctorClinicsSchema }),
   DoctorClinicController.getClinics
 );
 
