@@ -297,6 +297,7 @@ http://localhost:3000/api
 | `GET`  | `/api/queues/:clinicId`       | ✅            | Any         | Get queue by clinic ID (today) |
 | `GET`  | `/api/queues/:queueId/status` | ✅            | Any         | Get queue status               |
 | `POST` | `/api/tokens`                 | ✅            | Patient     | Generate token for queue       |
+| `GET`  | `/api/tokens/:patientId`      | ✅            | Patient     | Get patient's waiting token    |
 | `DELETE` | `/api/tokens/:tokenId`     | ✅            | Patient     | Delete own token               |
 
 ---
@@ -816,6 +817,40 @@ WAITING → CALLED → COMPLETED
     ↓
   SKIPPED
 ```
+
+#### Get Patient's Token (Patient Only)
+
+```http
+GET /api/tokens/:patientId
+Authorization: Bearer <access_token>
+```
+
+**Path Parameters:**
+
+| Parameter  | Type   | Required | Validation               |
+| ---------- | ------ | -------- | ------------------------ |
+| `patientId` | `uuid` | ✅       | Valid UUID of the patient |
+
+> ⚠️ **Note:** Returns the patient's current WAITING token (if any), ordered by token number (lowest first). Returns `null` if no waiting token exists.
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Token fetched successfully",
+  "data": {
+    "id": "token-uuid",
+    "queueId": "queue-uuid",
+    "patientId": "patient-uuid",
+    "tokenNumber": 15,
+    "status": "WAITING",
+    "createdAt": "2025-12-30T10:30:00.000Z"
+  }
+}
+```
+
+> 💡 **Note:** If the patient has no waiting tokens, the `data` field will be `null`.
 
 #### Delete Token (Patient Only)
 

@@ -12,9 +12,16 @@ export const deleteTokenForClinicSchema = z
   })
   .strict();
 
+export const getTokenForPatientSchema = z
+  .object({
+    patientId: z.uuid(),
+  })
+  .strict();
+
 export type GenerateTokenForClinicSchema = z.infer<
   typeof generateTokenForClinicSchema
 >;
 export type DeleteTokenForClinicSchema = z.infer<
   typeof deleteTokenForClinicSchema
 >;
+export type GetTokenForPatientSchema = z.infer<typeof getTokenForPatientSchema>;

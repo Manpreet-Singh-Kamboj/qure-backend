@@ -3,6 +3,7 @@ import { ResponseHandler } from "../utils/response.handler.js";
 import {
   DeleteTokenForClinicSchema,
   GenerateTokenForClinicSchema,
+  GetTokenForPatientSchema,
 } from "../schemas/token.schema.js";
 import { TokenService } from "../services/token.service.js";
 import { getIO } from "../socket/index.js";
@@ -59,6 +60,30 @@ export class TokenController {
         "Token deleted successfully",
         200,
         null
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        return ResponseHandler.error(res, error.message, 400, null);
+      }
+      console.error(error);
+      return ResponseHandler.error(
+        res,
+        "Something went wrong. Please try again later.",
+        500,
+        null
+      );
+    }
+  };
+
+  static getTokenForPatient = async (req: Request, res: Response) => {
+    try {
+      const { patientId } = req.params as GetTokenForPatientSchema;
+      const token = await TokenService.getTokenForPatient(patientId);
+      return ResponseHandler.success(
+        res,
+        "Token fetched successfully",
+        200,
+        token
       );
     } catch (error) {
       if (error instanceof Error) {

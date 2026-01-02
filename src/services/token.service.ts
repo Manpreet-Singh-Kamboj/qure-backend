@@ -149,4 +149,14 @@ export class TokenService {
       return { queueId };
     });
   };
+
+  static getTokenForPatient = async (patientId: string) => {
+    return await prisma.token.findFirst({
+      where: {
+        patientId,
+        status: "WAITING",
+      },
+      orderBy: { tokenNumber: "asc" },
+    });
+  };
 }

@@ -5,6 +5,7 @@ import { validate } from "../middlewares/schema.validate.middleware.js";
 import {
   deleteTokenForClinicSchema,
   generateTokenForClinicSchema,
+  getTokenForPatientSchema,
 } from "../schemas/token.schema.js";
 
 const router: Router = Router();
@@ -23,6 +24,14 @@ router.delete(
   isPatient,
   validate({ params: deleteTokenForClinicSchema }),
   TokenController.deleteTokenForClinic
+);
+
+router.get(
+  "/:patientId",
+  isAuthenticated,
+  isPatient,
+  validate({ params: getTokenForPatientSchema }),
+  TokenController.getTokenForPatient
 );
 
 export { router as tokenRouter };
