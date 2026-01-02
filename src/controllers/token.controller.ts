@@ -46,14 +46,19 @@ export class TokenController {
     try {
       const { tokenId } = req.params as DeleteTokenForClinicSchema;
       const patientId = req.user.id;
-      const { queueId } = await TokenService.deleteTokenForClinic(
-        tokenId,
-        patientId
-      );
+      const { queueId, affectedTokens, queueStatus } =
+        await TokenService.deleteTokenForClinic(tokenId, patientId);
 
       await redis.del(`queue:status:${queueId}`);
-      const queueStatus = await QueueService.getQueueStatus(queueId);
       getIO().to(`queue:${queueId}`).emit("queue:status_update", queueStatus);
+
+      for (const token of affectedTokens) {
+        getIO()
+          .to(`user:${token.patient.id}`)
+          .emit("queue:your_token_updated", {
+            ...token,
+          });
+      }
 
       return ResponseHandler.success(
         res,

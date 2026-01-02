@@ -154,7 +154,24 @@ export class TokenService {
         data: { tokenNumber: { decrement: 1 } },
       });
 
-      return { queueId };
+      const affectedTokens = await tx.token.findMany({
+        where: {
+          queueId,
+          status: "WAITING",
+          tokenNumber: { gte: deletedTokenNumber },
+        },
+        include: {
+          patient: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
+
+      const queueStatus = await QueueService.getQueueStatus(queueId);
+
+      return { queueId, affectedTokens, queueStatus };
     });
   };
 
