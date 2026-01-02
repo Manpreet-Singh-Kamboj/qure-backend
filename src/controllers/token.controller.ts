@@ -54,7 +54,7 @@ export class TokenController {
 
       for (const token of affectedTokens) {
         getIO()
-          .to(`user:${token.patient.id}`)
+          .to(`patient:${token.patient.id}`)
           .emit("queue:your_token_updated", {
             ...token,
           });

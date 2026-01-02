@@ -8,6 +8,7 @@ export const initializeQueueHandler = (socket: Socket) => {
   socket.on("join-queue", async (queueId: string) => {
     try {
       socket.join(`queue:${queueId}`);
+      console.log("🟢 Socket data user", socket.data.user);
       socket.join(`patient:${socket.data.user.id}`);
       console.log(`🟢 Socket ${socket.id} joined queue ${queueId}`);
       getIO().to(`queue:${queueId}`).emit("join-queue", undefined);
