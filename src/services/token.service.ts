@@ -122,4 +122,31 @@ export class TokenService {
       return await tx.token.findUniqueOrThrow({ where: { id: tokenId } });
     });
   }
+
+  static deleteTokenForClinic = async (tokenId: string, patientId: string) => {
+    return await prisma.$transaction(async (tx) => {
+      const token = await tx.token.findUnique({
+        where: { id: tokenId, patientId },
+      });
+      if (!token) {
+        throw new Error("Token not found");
+      }
+
+      const queueId = token.queueId;
+      const deletedTokenNumber = token.tokenNumber;
+
+      await tx.token.delete({ where: { id: token.id } });
+
+      await tx.token.updateMany({
+        where: {
+          queueId,
+          status: "WAITING",
+          tokenNumber: { gt: deletedTokenNumber },
+        },
+        data: { tokenNumber: { decrement: 1 } },
+      });
+
+      return { queueId };
+    });
+  };
 }

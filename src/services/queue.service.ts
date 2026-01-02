@@ -105,6 +105,8 @@ export class QueueService {
   }
 
   static async getQueueByClinicId(clinicId: string) {
+    const cachedQueue = await redis.get(`clinic_queue:${clinicId}`);
+    if (cachedQueue) return JSON.parse(cachedQueue);
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
@@ -124,6 +126,12 @@ export class QueueService {
         "Clinic does not have a queue for today. Please try again later."
       );
     }
+    await redis.set(
+      `clinic_queue:${clinicId}`,
+      JSON.stringify(queue),
+      "EX",
+      60 * 15
+    );
     return queue;
   }
 }

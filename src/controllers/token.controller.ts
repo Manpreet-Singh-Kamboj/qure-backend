@@ -1,7 +1,13 @@
 import { Request, Response } from "express";
 import { ResponseHandler } from "../utils/response.handler.js";
-import { GenerateTokenForClinicSchema } from "../schemas/token.schema.js";
+import {
+  DeleteTokenForClinicSchema,
+  GenerateTokenForClinicSchema,
+} from "../schemas/token.schema.js";
 import { TokenService } from "../services/token.service.js";
+import { getIO } from "../socket/index.js";
+import { QueueService } from "../services/queue.service.js";
+import { redis } from "../redis/index.js";
 
 export class TokenController {
   static generateTokenForClinic = async (req: Request, res: Response) => {
@@ -26,6 +32,39 @@ export class TokenController {
 
       console.error(error);
 
+      return ResponseHandler.error(
+        res,
+        "Something went wrong. Please try again later.",
+        500,
+        null
+      );
+    }
+  };
+
+  static deleteTokenForClinic = async (req: Request, res: Response) => {
+    try {
+      const { tokenId } = req.params as DeleteTokenForClinicSchema;
+      const patientId = req.user.id;
+      const { queueId } = await TokenService.deleteTokenForClinic(
+        tokenId,
+        patientId
+      );
+
+      await redis.del(`queue:status:${queueId}`);
+      const queueStatus = await QueueService.getQueueStatus(queueId);
+      getIO().to(`queue:${queueId}`).emit("queue:status_update", queueStatus);
+
+      return ResponseHandler.success(
+        res,
+        "Token deleted successfully",
+        200,
+        null
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        return ResponseHandler.error(res, error.message, 400, null);
+      }
+      console.error(error);
       return ResponseHandler.error(
         res,
         "Something went wrong. Please try again later.",

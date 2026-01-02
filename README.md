@@ -297,6 +297,7 @@ http://localhost:3000/api
 | `GET`  | `/api/queues/:clinicId`       | ✅            | Any         | Get queue by clinic ID (today) |
 | `GET`  | `/api/queues/:queueId/status` | ✅            | Any         | Get queue status               |
 | `POST` | `/api/tokens`                 | ✅            | Patient     | Generate token for queue       |
+| `DELETE` | `/api/tokens/:tokenId`     | ✅            | Patient     | Delete own token               |
 
 ---
 
@@ -815,6 +816,38 @@ WAITING → CALLED → COMPLETED
     ↓
   SKIPPED
 ```
+
+#### Delete Token (Patient Only)
+
+```http
+DELETE /api/tokens/:tokenId
+Authorization: Bearer <access_token>
+```
+
+**Path Parameters:**
+
+| Parameter | Type   | Required | Validation                  |
+| --------- | ------ | -------- | --------------------------- |
+| `tokenId` | `uuid` | ✅       | Valid UUID of your token    |
+
+> ⚠️ **Validation Rules:**
+>
+> - Patient can only delete their own tokens
+> - Token must exist and belong to the authenticated patient
+> - All subsequent tokens in the queue will be renumbered (token numbers decremented by 1)
+> - Queue status update is broadcasted to all connected clients via WebSocket
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Token deleted successfully",
+  "data": null
+}
+```
+
+> 🔔 **WebSocket Event:** After deletion, `queue:status_update` event is emitted to all clients in the queue room with the updated queue status.
 
 ---
 
