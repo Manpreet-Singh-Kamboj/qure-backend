@@ -1,5 +1,7 @@
 import { prisma } from "../prisma/client.js";
 import { redis } from "../redis/index.js";
+import { getIO } from "../socket/index.js";
+import { QueueService } from "./queue.service.js";
 
 export class TokenService {
   static generateTokenForClinic = async (
@@ -29,10 +31,14 @@ export class TokenService {
       }
 
       const queueDate = new Date();
-      queueDate.setHours(0, 0, 0, 0);
+      queueDate.setUTCHours(0, 0, 0, 0);
 
       const queue = await tx.queue.findUnique({
-        where: { id: queueId, queueDate, isActive: true },
+        where: {
+          id: queueId,
+          queueDate: { equals: queueDate },
+          isActive: true,
+        },
       });
 
       if (!queue) {
@@ -55,6 +61,8 @@ export class TokenService {
       });
     });
 
+    const queueStatus = await QueueService.getQueueStatus(queueId);
+    getIO().to(`queue:${queueId}`).emit("queue:status_update", queueStatus);
     return token;
   };
 
