@@ -27,9 +27,13 @@ export const getClinicCacheKey = (
 
 export const todayWithTime = (time: string) => {
   const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
   const [hours, minutes] = time.split(":").map(Number);
 
-  today.setHours(hours, minutes, 0, 0);
+  const estOffsetHours = 5;
+  const utcHours = hours + estOffsetHours;
+
+  today.setUTCHours(utcHours, minutes, 0, 0);
   return today;
 };
 

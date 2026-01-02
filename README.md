@@ -280,22 +280,23 @@ http://localhost:3000/api
 
 ### API Overview
 
-| Method | Endpoint                      | Auth Required | Role        | Description                   |
-| ------ | ----------------------------- | ------------- | ----------- | ----------------------------- |
-| `GET`  | `/health`                     | ❌            | Public      | Health check                  |
-| `POST` | `/api/auth/register`          | ❌            | Public      | Register new user             |
-| `POST` | `/api/auth/login`             | ❌            | Public      | Login user                    |
-| `POST` | `/api/auth/logout`            | ❌            | Public      | Logout & revoke refresh token |
-| `POST` | `/api/auth/refresh-token`     | ❌            | Public      | Refresh access token          |
-| `GET`  | `/api/auth/me`                | ✅            | Any         | Get current user profile      |
-| `POST` | `/api/clinic`                 | ✅            | Admin       | Create new clinic             |
-| `GET`  | `/api/clinic`                 | ✅            | Any         | Get clinics (with geo-filter) |
-| `GET`  | `/api/clinic/:clinicId`       | ✅            | Any         | Get clinic by ID              |
-| `POST` | `/api/clinic/:clinicId/staff` | ✅            | Admin       | Add staff to clinic           |
-| `GET`  | `/api/clinic/:clinicId/staff` | ✅            | Admin/Staff | Get clinic staff members      |
-| `POST` | `/api/queues/init/:clinicId`  | ✅            | Admin/Staff | Initialize daily queue        |
-| `GET`  | `/api/queues/:queueId/status` | ✅            | Any         | Get queue status              |
-| `POST` | `/api/tokens`                 | ✅            | Patient     | Generate token for queue      |
+| Method | Endpoint                      | Auth Required | Role        | Description                    |
+| ------ | ----------------------------- | ------------- | ----------- | ------------------------------ |
+| `GET`  | `/health`                     | ❌            | Public      | Health check                   |
+| `POST` | `/api/auth/register`          | ❌            | Public      | Register new user              |
+| `POST` | `/api/auth/login`             | ❌            | Public      | Login user                     |
+| `POST` | `/api/auth/logout`            | ❌            | Public      | Logout & revoke refresh token  |
+| `POST` | `/api/auth/refresh-token`     | ❌            | Public      | Refresh access token           |
+| `GET`  | `/api/auth/me`                | ✅            | Any         | Get current user profile       |
+| `POST` | `/api/clinic`                 | ✅            | Admin       | Create new clinic              |
+| `GET`  | `/api/clinic`                 | ✅            | Any         | Get clinics (with geo-filter)  |
+| `GET`  | `/api/clinic/:clinicId`       | ✅            | Any         | Get clinic by ID               |
+| `POST` | `/api/clinic/:clinicId/staff` | ✅            | Admin       | Add staff to clinic            |
+| `GET`  | `/api/clinic/:clinicId/staff` | ✅            | Admin/Staff | Get clinic staff members       |
+| `POST` | `/api/queues/init/:clinicId`  | ✅            | Admin/Staff | Initialize daily queue         |
+| `GET`  | `/api/queues/:clinicId`       | ✅            | Any         | Get queue by clinic ID (today) |
+| `GET`  | `/api/queues/:queueId/status` | ✅            | Any         | Get queue status               |
+| `POST` | `/api/tokens`                 | ✅            | Patient     | Generate token for queue       |
 
 ---
 
@@ -691,6 +692,43 @@ Content-Type: application/json
   }
 }
 ```
+
+#### Get Queue by Clinic ID
+
+```http
+GET /api/queues/:clinicId
+Authorization: Bearer <access_token>
+```
+
+**Path Parameters:**
+
+| Parameter  | Type   | Required | Validation |
+| ---------- | ------ | -------- | ---------- |
+| `clinicId` | `uuid` | ✅       | Valid UUID |
+
+> ⚠️ **Note:** Returns the queue for the current date (UTC). If no queue exists for today, returns an error.
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "queue-uuid",
+    "clinicId": "clinic-uuid",
+    "queueDate": "2025-12-30T00:00:00.000Z",
+    "currentTokenNo": 0,
+    "isActive": true,
+    "createdAt": "2025-12-30T01:00:00.000Z",
+    "updatedAt": "2025-12-30T01:00:00.000Z",
+    "maxQueueSize": 50,
+    "startTime": "2025-12-30T13:00:00.000Z",
+    "endTime": "2025-12-30T22:00:00.000Z"
+  }
+}
+```
+
+> 💡 **Note:** Times are stored in UTC. Opening hours are converted from EST (UTC-5) to UTC for storage.
 
 #### Get Queue Status
 

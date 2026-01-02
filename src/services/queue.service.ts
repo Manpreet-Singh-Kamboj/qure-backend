@@ -22,7 +22,7 @@ export class QueueService {
         throw new Error("Clinic not found");
       }
       const queueDate = new Date();
-      queueDate.setHours(0, 0, 0, 0);
+      queueDate.setUTCHours(0, 0, 0, 0);
 
       const existingQueue = await tx.queue.findFirst({
         where: {
@@ -58,7 +58,7 @@ export class QueueService {
 
     const queueStatus = await prisma.$transaction(async (tx) => {
       const queueDate = new Date();
-      queueDate.setHours(0, 0, 0, 0);
+      queueDate.setUTCHours(0, 0, 0, 0);
 
       const queue = await tx.queue.findFirst({
         where: { id: queueId, queueDate },
@@ -100,6 +100,29 @@ export class QueueService {
     });
     if (!queue) {
       throw new Error("Queue not found");
+    }
+    return queue;
+  }
+
+  static async getQueueByClinicId(clinicId: string) {
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+
+    const queue = await prisma.queue.findFirst({
+      where: {
+        clinicId,
+        queueDate: {
+          gte: today,
+          lt: tomorrow,
+        },
+      },
+    });
+    if (!queue) {
+      throw new Error(
+        "Clinic does not have a queue for today. Please try again later."
+      );
     }
     return queue;
   }

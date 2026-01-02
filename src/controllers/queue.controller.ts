@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import {
+  GetQueueParamsSchema,
   GetQueueStatusParamsSchema,
   InitializeQueueBodySchema,
   InitializeQueueParamsSchema,
@@ -59,6 +60,23 @@ export class QueueController {
         500,
         null
       );
+    }
+  }
+
+  static async getQueueByClinicId(req: Request, res: Response) {
+    try {
+      const { clinicId } = req.params as GetQueueParamsSchema;
+      const queue = await QueueService.getQueueByClinicId(clinicId);
+      return ResponseHandler.success(
+        res,
+        "Queue fetched successfully",
+        200,
+        queue
+      );
+    } catch (error: any) {
+      if (error instanceof Error) {
+        return ResponseHandler.error(res, error.message, 400, null);
+      }
     }
   }
 }

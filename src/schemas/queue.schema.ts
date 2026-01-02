@@ -12,6 +12,10 @@ export const getQueueStatusParamsSchema = z.object({
   queueId: z.uuid().min(1),
 });
 
+export const getQueueParamsSchema = z.object({
+  clinicId: z.uuid().min(1),
+});
+
 export type InitializeQueueParamsSchema = z.infer<
   typeof initializeQueueParamsSchema
 >;
@@ -21,3 +25,4 @@ export type InitializeQueueBodySchema = z.infer<
 export type GetQueueStatusParamsSchema = z.infer<
   typeof getQueueStatusParamsSchema
 >;
+export type GetQueueParamsSchema = z.infer<typeof getQueueParamsSchema>;

@@ -5,6 +5,7 @@ import {
 } from "../middlewares/auth.middleware.js";
 import { validate } from "../middlewares/schema.validate.middleware.js";
 import {
+  getQueueParamsSchema,
   getQueueStatusParamsSchema,
   initializeQueueBodySchema,
   initializeQueueParamsSchema,
@@ -22,6 +23,15 @@ router.post(
     body: initializeQueueBodySchema,
   }),
   QueueController.initializeQueue
+);
+
+router.get(
+  "/:clinicId",
+  isAuthenticated,
+  validate({
+    params: getQueueParamsSchema,
+  }),
+  QueueController.getQueueByClinicId
 );
 
 router.get(
