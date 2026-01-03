@@ -80,6 +80,34 @@ export class TokenService {
         throw new Error("No waiting tokens in this queue");
       }
 
+      const date = new Date();
+      date.setUTCHours(0, 0, 0, 0);
+
+      const queue = await tx.queue.findUnique({
+        where: { id: queueId, isActive: true },
+      });
+
+      if (!queue) {
+        throw new Error("Queue not found");
+      }
+
+      const lastCalledToken = await tx.token.findFirst({
+        where: { queueId, status: "CALLED" },
+        orderBy: { tokenNumber: "desc" },
+      });
+
+      if (lastCalledToken) {
+        await tx.token.update({
+          where: { id: lastCalledToken.id },
+          data: { status: "COMPLETED", completedAt: new Date() },
+        });
+      }
+
+      await tx.queue.update({
+        where: { id: queueId },
+        data: { currentTokenNo: { increment: 1 } },
+      });
+
       return await tx.token.update({
         where: { id: token.id },
         data: { status: "CALLED", calledAt: new Date() },
