@@ -18,6 +18,19 @@ export const getTokenForPatientSchema = z
   })
   .strict();
 
+export const getTokenForQueueSchema = z
+  .object({
+    queueId: z.uuid(),
+  })
+  .strict();
+
+export const getTokenForQueueQuerySchema = z
+  .object({
+    tokenNumber: z.number(),
+    status: z.enum(["WAITING", "CALLED", "SKIPPED", "COMPLETED"]),
+  })
+  .strict();
+
 export type GenerateTokenForClinicSchema = z.infer<
   typeof generateTokenForClinicSchema
 >;
@@ -25,3 +38,7 @@ export type DeleteTokenForClinicSchema = z.infer<
   typeof deleteTokenForClinicSchema
 >;
 export type GetTokenForPatientSchema = z.infer<typeof getTokenForPatientSchema>;
+export type GetTokenForQueueSchema = z.infer<typeof getTokenForQueueSchema>;
+export type GetTokenForQueueQuerySchema = z.infer<
+  typeof getTokenForQueueQuerySchema
+>;

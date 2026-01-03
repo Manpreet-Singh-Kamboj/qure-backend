@@ -1,3 +1,4 @@
+import { TokenStatus } from "@prisma/client";
 import { prisma } from "../prisma/client.js";
 import { redis } from "../redis/index.js";
 import { getIO } from "../socket/index.js";
@@ -210,6 +211,20 @@ export class TokenService {
         status: "WAITING",
       },
       orderBy: { tokenNumber: "asc" },
+    });
+  };
+
+  static getCurrentTokenForQueue = async (
+    queueId: string,
+    tokenNumber: number,
+    status: TokenStatus
+  ) => {
+    return await prisma.token.findFirst({
+      where: {
+        queueId,
+        tokenNumber,
+        status,
+      },
     });
   };
 }

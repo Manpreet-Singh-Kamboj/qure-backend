@@ -1,11 +1,17 @@
 import { Router } from "express";
 import { TokenController } from "../controllers/token.controller.js";
-import { isAuthenticated, isPatient } from "../middlewares/auth.middleware.js";
+import {
+  isAuthenticated,
+  isPatient,
+  isStaff,
+} from "../middlewares/auth.middleware.js";
 import { validate } from "../middlewares/schema.validate.middleware.js";
 import {
   deleteTokenForClinicSchema,
   generateTokenForClinicSchema,
   getTokenForPatientSchema,
+  getTokenForQueueQuerySchema,
+  getTokenForQueueSchema,
 } from "../schemas/token.schema.js";
 
 const router: Router = Router();
@@ -32,6 +38,17 @@ router.get(
   isPatient,
   validate({ params: getTokenForPatientSchema }),
   TokenController.getTokenForPatient
+);
+
+router.get(
+  "/queue/:queueId",
+  isAuthenticated,
+  isStaff,
+  validate({
+    params: getTokenForQueueSchema,
+    query: getTokenForQueueQuerySchema,
+  }),
+  TokenController.getCurrentTokenForQueue
 );
 
 export { router as tokenRouter };
