@@ -113,7 +113,7 @@ export class TokenController {
         req.query as unknown as GetTokenForQueueQuerySchema;
       const token = await TokenService.getCurrentTokenForQueue(
         queueId,
-        tokenNumber,
+        Number(tokenNumber),
         status
       );
       return ResponseHandler.success(
