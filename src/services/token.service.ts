@@ -121,7 +121,7 @@ export class TokenService {
         where: {
           id: tokenId,
           queueId,
-          status: "WAITING",
+          status: { in: ["WAITING", "CALLED"] },
         },
         data: {
           status: "SKIPPED",
