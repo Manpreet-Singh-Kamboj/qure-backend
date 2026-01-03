@@ -40,8 +40,14 @@ export const refreshTokenSchema = z.object({
 });
 
 export const updateProfileSchema = z.object({
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
+  firstName: z
+    .string()
+    .min(3, "First name must be at least 3 characters")
+    .optional(),
+  lastName: z
+    .string()
+    .min(3, "Last name must be at least 3 characters")
+    .optional(),
   profilePicture: z.any().optional(),
 });
 

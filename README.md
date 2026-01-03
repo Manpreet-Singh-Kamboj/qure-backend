@@ -469,8 +469,8 @@ Content-Type: multipart/form-data
 
 | Field            | Type     | Required | Validation       |
 | ---------------- | -------- | -------- | ---------------- |
-| `firstName`      | `string` | ✅       | Min 3 characters |
-| `lastName`       | `string` | ✅       | Min 3 characters |
+| `firstName`      | `string` | ❌       | Min 3 characters |
+| `lastName`       | `string` | ❌       | Min 3 characters |
 | `profilePicture` | `file`   | ❌       | Image file       |
 
 > 💡 **Note:** Profile picture is optional. If provided, it will be processed asynchronously via BullMQ and uploaded to Cloudinary.
