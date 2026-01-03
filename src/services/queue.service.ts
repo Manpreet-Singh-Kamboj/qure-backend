@@ -73,12 +73,26 @@ export class QueueService {
         },
       });
 
+      const lastServedTokenNumber = await tx.token.findFirst({
+        where: {
+          queueId: queue.id,
+          status: "COMPLETED",
+        },
+        orderBy: {
+          completedAt: "desc",
+        },
+        select: {
+          tokenNumber: true,
+        },
+      });
+
       return {
         queueId: queue.id,
         currentTokenNo: queue.currentTokenNo,
         waitingCount,
         startTime: queue.startTime,
         endTime: queue.endTime,
+        lastServedTokenNumber: lastServedTokenNumber?.tokenNumber,
       };
     });
 
