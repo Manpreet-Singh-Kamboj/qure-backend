@@ -130,7 +130,7 @@ export class TokenService {
       });
 
       if (updated.count === 0) {
-        throw new Error("Token is not waiting or already processed");
+        throw new Error("Token not found or cannot be skipped");
       }
 
       return await tx.token.findUniqueOrThrow({ where: { id: tokenId } });
