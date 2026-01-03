@@ -132,9 +132,14 @@ export class AuthController {
 
   static updateProfile = async (req: Request, res: Response) => {
     try {
-      const { firstName, lastName } = req.body as UpdateProfileSchema;
+      const {
+        firstName,
+        lastName,
+        profilePicture: profilePictureFromBody,
+      } = req.body as UpdateProfileSchema & { profilePicture?: string };
       const files = req.files as UpdateProfileFiles | null;
-      const { profilePicture } = files ?? {};
+      const profilePicture =
+        files?.profilePicture || profilePictureFromBody || undefined;
       await AuthService.updateProfile(
         req.user.id,
         firstName,
