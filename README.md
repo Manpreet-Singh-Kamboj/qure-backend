@@ -226,6 +226,8 @@ services:
     container_name: redis
     ports:
       - "6379:6379"
+    networks:
+      - qure-network
     volumes:
       - redis_data:/data
     restart: unless-stopped
@@ -236,6 +238,8 @@ services:
     command: npm run dev
     ports:
       - "8080:8080"
+    networks:
+      - qure-network
     env_file:
       - .env
     restart: unless-stopped
@@ -246,6 +250,8 @@ services:
     image: manpreet3033/qure-backend
     container_name: image-worker
     command: npm run image:worker
+    networks:
+      - qure-network
     env_file:
       - .env
     restart: unless-stopped
@@ -254,6 +260,10 @@ services:
 
 volumes:
   redis_data:
+
+networks:
+  qure-network:
+    driver: bridge
 ```
 
 ### Environment Setup for Docker
