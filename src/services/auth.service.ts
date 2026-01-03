@@ -224,8 +224,8 @@ export class AuthService {
 
   static updateProfile = async (
     userId: string,
-    firstName: string,
-    lastName: string,
+    firstName: string | undefined,
+    lastName: string | undefined,
     profilePicture: UploadedImage | string | undefined | null
   ) => {
     let smallProfilePictureBuffer = undefined;
@@ -244,8 +244,8 @@ export class AuthService {
         : undefined;
 
     const userProfileData = {
-      firstName,
-      lastName,
+      ...(firstName ? { firstName } : {}),
+      ...(lastName ? { lastName } : {}),
       ...(profilePicture ? { profilePicture: uploadedProfilePicture } : {}),
     };
 
