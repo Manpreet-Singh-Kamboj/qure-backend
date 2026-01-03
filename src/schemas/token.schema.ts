@@ -26,7 +26,7 @@ export const getTokenForQueueSchema = z
 
 export const getTokenForQueueQuerySchema = z
   .object({
-    tokenNumber: z.number(),
+    tokenNumber: z.coerce.number(),
     status: z.enum(["WAITING", "CALLED", "SKIPPED", "COMPLETED"]),
   })
   .strict();
