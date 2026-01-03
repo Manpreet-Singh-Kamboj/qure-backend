@@ -6,6 +6,10 @@ import {
   hashToken,
 } from "../utils/token.util.js";
 import { redis } from "../redis/index.js";
+import { ImageType, UploadedImage } from "../types/index.js";
+import { getBufferAndType } from "../utils/index.js";
+import sharp from "sharp";
+import { uploadImage } from "../utils/cloudinary.uploader.js";
 
 const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
 
@@ -216,5 +220,67 @@ export class AuthService {
       accessToken,
       refreshToken: newRefreshToken,
     };
+  };
+
+  static updateProfile = async (
+    userId: string,
+    firstName: string,
+    lastName: string,
+    profilePicture: UploadedImage | string | undefined | null
+  ) => {
+    let smallProfilePictureBuffer = undefined;
+
+    if (profilePicture != null) {
+      const { buffer } = await getBufferAndType(profilePicture);
+      smallProfilePictureBuffer = await sharp(buffer)
+        .resize(1024, 1024, { fit: "inside" })
+        .jpeg({ quality: 70 })
+        .toBuffer();
+    }
+
+    const uploadedProfilePicture =
+      smallProfilePictureBuffer != null
+        ? await uploadImage(smallProfilePictureBuffer)
+        : undefined;
+
+    const userProfileData = {
+      firstName,
+      lastName,
+      ...(profilePicture ? { profilePicture: uploadedProfilePicture } : {}),
+    };
+
+    await redis.del(`user:${userId}`);
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...userProfileData,
+      },
+    });
+  };
+
+  static updatePassword = async (
+    userId: string,
+    oldPassword: string,
+    newPassword: string
+  ) => {
+    await prisma.$transaction(async (tx) => {
+      const user = await tx.user.findUnique({
+        where: { id: userId },
+      });
+      if (!user) {
+        throw new Error("User not found");
+      }
+      const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+      if (!isPasswordValid) {
+        throw new Error("Invalid old password");
+      }
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(newPassword, salt);
+      await tx.user.update({
+        where: { id: userId },
+        data: { password: hashedPassword },
+      });
+    });
   };
 }

@@ -280,25 +280,27 @@ http://localhost:3000/api
 
 ### API Overview
 
-| Method | Endpoint                      | Auth Required | Role        | Description                    |
-| ------ | ----------------------------- | ------------- | ----------- | ------------------------------ |
-| `GET`  | `/health`                     | ❌            | Public      | Health check                   |
-| `POST` | `/api/auth/register`          | ❌            | Public      | Register new user              |
-| `POST` | `/api/auth/login`             | ❌            | Public      | Login user                     |
-| `POST` | `/api/auth/logout`            | ❌            | Public      | Logout & revoke refresh token  |
-| `POST` | `/api/auth/refresh-token`     | ❌            | Public      | Refresh access token           |
-| `GET`  | `/api/auth/me`                | ✅            | Any         | Get current user profile       |
-| `POST` | `/api/clinic`                 | ✅            | Admin       | Create new clinic              |
-| `GET`  | `/api/clinic`                 | ✅            | Any         | Get clinics (with geo-filter)  |
-| `GET`  | `/api/clinic/:clinicId`       | ✅            | Any         | Get clinic by ID               |
-| `POST` | `/api/clinic/:clinicId/staff` | ✅            | Admin       | Add staff to clinic            |
-| `GET`  | `/api/clinic/:clinicId/staff` | ✅            | Admin/Staff | Get clinic staff members       |
-| `POST` | `/api/queues/init/:clinicId`  | ✅            | Admin/Staff | Initialize daily queue         |
-| `GET`  | `/api/queues/:clinicId`       | ✅            | Any         | Get queue by clinic ID (today) |
-| `GET`  | `/api/queues/:queueId/status` | ✅            | Any         | Get queue status               |
-| `POST` | `/api/tokens`                 | ✅            | Patient     | Generate token for queue       |
-| `GET`  | `/api/tokens/:patientId`      | ✅            | Patient     | Get patient's waiting token    |
-| `DELETE` | `/api/tokens/:tokenId`     | ✅            | Patient     | Delete own token               |
+| Method   | Endpoint                      | Auth Required | Role        | Description                    |
+| -------- | ----------------------------- | ------------- | ----------- | ------------------------------ |
+| `GET`    | `/health`                     | ❌            | Public      | Health check                   |
+| `POST`   | `/api/auth/register`          | ❌            | Public      | Register new user              |
+| `POST`   | `/api/auth/login`             | ❌            | Public      | Login user                     |
+| `POST`   | `/api/auth/logout`            | ❌            | Public      | Logout & revoke refresh token  |
+| `POST`   | `/api/auth/refresh-token`     | ❌            | Public      | Refresh access token           |
+| `GET`    | `/api/auth/me`                | ✅            | Any         | Get current user profile       |
+| `PUT`    | `/api/auth/me`                | ✅            | Any         | Update user profile            |
+| `PUT`    | `/api/auth/update-password`   | ✅            | Any         | Update user password           |
+| `POST`   | `/api/clinic`                 | ✅            | Admin       | Create new clinic              |
+| `GET`    | `/api/clinic`                 | ✅            | Any         | Get clinics (with geo-filter)  |
+| `GET`    | `/api/clinic/:clinicId`       | ✅            | Any         | Get clinic by ID               |
+| `POST`   | `/api/clinic/:clinicId/staff` | ✅            | Admin       | Add staff to clinic            |
+| `GET`    | `/api/clinic/:clinicId/staff` | ✅            | Admin/Staff | Get clinic staff members       |
+| `POST`   | `/api/queues/init/:clinicId`  | ✅            | Admin/Staff | Initialize daily queue         |
+| `GET`    | `/api/queues/:clinicId`       | ✅            | Any         | Get queue by clinic ID (today) |
+| `GET`    | `/api/queues/:queueId/status` | ✅            | Any         | Get queue status               |
+| `POST`   | `/api/tokens`                 | ✅            | Patient     | Generate token for queue       |
+| `GET`    | `/api/tokens/:patientId`      | ✅            | Patient     | Get patient's waiting token    |
+| `DELETE` | `/api/tokens/:tokenId`        | ✅            | Patient     | Delete own token               |
 
 ---
 
@@ -454,6 +456,92 @@ Content-Type: application/json
   "refreshToken": "abc123..."
 }
 ```
+
+#### Update Profile
+
+```http
+PUT /api/auth/me
+Authorization: Bearer <access_token>
+Content-Type: multipart/form-data
+```
+
+**Request Body:**
+
+| Field            | Type     | Required | Validation       |
+| ---------------- | -------- | -------- | ---------------- |
+| `firstName`      | `string` | ✅       | Min 3 characters |
+| `lastName`       | `string` | ✅       | Min 3 characters |
+| `profilePicture` | `file`   | ❌       | Image file       |
+
+> 💡 **Note:** Profile picture is optional. If provided, it will be processed asynchronously via BullMQ and uploaded to Cloudinary.
+
+**Example:**
+
+```json
+{
+  "firstName": "John",
+  "lastName": "Doe"
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Profile updated successfully",
+  "data": null
+}
+```
+
+#### Update Password
+
+```http
+PUT /api/auth/update-password
+Authorization: Bearer <access_token>
+Content-Type: application/json
+```
+
+**Request Body:**
+
+| Field                | Type     | Required | Validation               |
+| -------------------- | -------- | -------- | ------------------------ |
+| `oldPassword`        | `string` | ✅       | Min 6 characters         |
+| `newPassword`        | `string` | ✅       | Min 6 characters         |
+| `confirmNewPassword` | `string` | ✅       | Must match `newPassword` |
+
+**Example:**
+
+```json
+{
+  "oldPassword": "currentPassword123",
+  "newPassword": "newSecurePassword456",
+  "confirmNewPassword": "newSecurePassword456"
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "uuid",
+    "email": "john@example.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "role": "PATIENT",
+    "clinicId": null,
+    "profilePicture": "https://..."
+  }
+}
+```
+
+> ⚠️ **Validation Rules:**
+>
+> - Old password must match the current password
+> - New password must be different from the old password
+> - New password and confirm password must match
 
 ---
 
@@ -827,8 +915,8 @@ Authorization: Bearer <access_token>
 
 **Path Parameters:**
 
-| Parameter  | Type   | Required | Validation               |
-| ---------- | ------ | -------- | ------------------------ |
+| Parameter   | Type   | Required | Validation                |
+| ----------- | ------ | -------- | ------------------------- |
 | `patientId` | `uuid` | ✅       | Valid UUID of the patient |
 
 > ⚠️ **Note:** Returns the patient's current WAITING token (if any), ordered by token number (lowest first). Returns `null` if no waiting token exists.
@@ -861,9 +949,9 @@ Authorization: Bearer <access_token>
 
 **Path Parameters:**
 
-| Parameter | Type   | Required | Validation                  |
-| --------- | ------ | -------- | --------------------------- |
-| `tokenId` | `uuid` | ✅       | Valid UUID of your token    |
+| Parameter | Type   | Required | Validation               |
+| --------- | ------ | -------- | ------------------------ |
+| `tokenId` | `uuid` | ✅       | Valid UUID of your token |
 
 > ⚠️ **Validation Rules:**
 >

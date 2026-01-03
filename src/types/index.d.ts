@@ -59,4 +59,8 @@ export type ClinicFiles = fileUpload.FileArray & {
   images?: fileUpload.UploadedFile[] | string[];
 };
 
+export type UpdateProfileFiles = fileUpload.FileArray & {
+  profilePicture?: fileUpload.UploadedFile | string;
+};
+
 export type ImageType = Buffer | UploadedImage | string;

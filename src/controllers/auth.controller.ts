@@ -5,9 +5,13 @@ import {
   LogoutSchema,
   RefreshTokenSchema,
   RegisterSchema,
+  UpdatePasswordSchema,
+  UpdateProfileSchema,
 } from "../schemas/auth.schema.js";
 import { AuthService } from "../services/auth.service.js";
-import { getClientIp } from "../utils/index.js";
+import { getBufferAndType, getClientIp } from "../utils/index.js";
+import { UploadedFile } from "express-fileupload";
+import { UpdateProfileFiles } from "../types/index.js";
 
 export class AuthController {
   static register = async (req: Request, res: Response) => {
@@ -115,6 +119,60 @@ export class AuthController {
     } catch (error) {
       if (error instanceof Error) {
         return ResponseHandler.error(res, error.message, 401, null);
+      }
+      console.error(error);
+      return ResponseHandler.error(
+        res,
+        "Something went wrong. Please try again later.",
+        500,
+        null
+      );
+    }
+  };
+
+  static updateProfile = async (req: Request, res: Response) => {
+    try {
+      const { firstName, lastName } = req.body as UpdateProfileSchema;
+      const files = req.files as UpdateProfileFiles | null;
+      const { profilePicture } = files ?? {};
+      await AuthService.updateProfile(
+        req.user.id,
+        firstName,
+        lastName,
+        profilePicture
+      );
+      return ResponseHandler.success(
+        res,
+        "Profile updated successfully",
+        200,
+        undefined
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        return ResponseHandler.error(res, error.message, 400, null);
+      }
+      console.error(error);
+      return ResponseHandler.error(
+        res,
+        "Something went wrong. Please try again later.",
+        500,
+        null
+      );
+    }
+  };
+
+  static updatePassword = async (req: Request, res: Response) => {
+    try {
+      const { oldPassword, newPassword } = req.body as UpdatePasswordSchema;
+      const profile = await AuthService.updatePassword(
+        req.user.id,
+        oldPassword,
+        newPassword
+      );
+      return ResponseHandler.success(res, undefined, 200, profile);
+    } catch (error) {
+      if (error instanceof Error) {
+        return ResponseHandler.error(res, error.message, 400, null);
       }
       console.error(error);
       return ResponseHandler.error(

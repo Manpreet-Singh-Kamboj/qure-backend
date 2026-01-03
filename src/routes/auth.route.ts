@@ -5,6 +5,8 @@ import {
   logoutSchema,
   refreshTokenSchema,
   registerSchema,
+  updatePasswordSchema,
+  updateProfileSchema,
 } from "../schemas/auth.schema.js";
 import { AuthController } from "../controllers/auth.controller.js";
 import { isAuthenticated } from "../middlewares/auth.middleware.js";
@@ -23,6 +25,18 @@ router.post(
   "/refresh-token",
   validate({ body: refreshTokenSchema }),
   AuthController.refreshToken
+);
+router.put(
+  "/me",
+  isAuthenticated,
+  validate({ body: updateProfileSchema }),
+  AuthController.updateProfile
+);
+router.put(
+  "/update-password",
+  isAuthenticated,
+  validate({ body: updatePasswordSchema }),
+  AuthController.updatePassword
 );
 
 export { router as authRouter };
