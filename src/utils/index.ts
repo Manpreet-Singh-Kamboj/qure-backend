@@ -1,6 +1,7 @@
 import { Request } from "express";
 import { UploadedImage } from "../types";
 import fs from "node:fs/promises";
+import { fromZonedTime, toZonedTime } from "date-fns-tz";
 
 export const getClientIp = (req: Request): string | undefined => {
   const forwarded = req.headers["x-forwarded-for"];
@@ -25,16 +26,65 @@ export const getClinicCacheKey = (
   return `nearby_clinics:${latBucket}:${lngBucket}:${radius}:${limit}`;
 };
 
+const EASTERN_TIMEZONE = "America/New_York";
+
+/**
+ * Gets today's date in America/New_York timezone (EST/EDT), stored as UTC
+ * Returns a Date object representing midnight of today in Eastern Time (stored as UTC)
+ * Handles DST automatically (EST = UTC-5, EDT = UTC-4)
+ *
+ * Note: new Date() always returns UTC time regardless of server location (Render uses UTC).
+ * This function converts to Eastern Time, accounting for DST automatically using date-fns-tz.
+ */
+export const getTodayInEST = (): Date => {
+  const now = new Date();
+
+  // Get current date in Eastern Time
+  const etNow = toZonedTime(now, EASTERN_TIMEZONE);
+
+  // Create midnight in Eastern Time (year, month, day from ET, time = 00:00:00)
+  const etMidnight = new Date(
+    etNow.getFullYear(),
+    etNow.getMonth(),
+    etNow.getDate(),
+    0,
+    0,
+    0,
+    0
+  );
+
+  // Convert midnight ET to UTC
+  // This gives us the UTC timestamp representing midnight in Eastern Time
+  return fromZonedTime(etMidnight, EASTERN_TIMEZONE);
+};
+
+/**
+ * Creates a Date object for a specific time today in Eastern Time, stored as UTC
+ * @param time - Time string in format "HH:mm" (e.g., "09:00" for 9 AM)
+ * @returns Date object in UTC representing the specified time in Eastern Time
+ */
 export const todayWithTime = (time: string) => {
-  const today = new Date();
-  today.setUTCHours(0, 0, 0, 0);
+  const now = new Date();
+
+  // Get current date in Eastern Time
+  const etNow = toZonedTime(now, EASTERN_TIMEZONE);
+
+  // Parse the time string
   const [hours, minutes] = time.split(":").map(Number);
 
-  const estOffsetHours = 5;
-  const utcHours = hours + estOffsetHours;
+  // Create date with the specified time in Eastern Time
+  const etDateTime = new Date(
+    etNow.getFullYear(),
+    etNow.getMonth(),
+    etNow.getDate(),
+    hours,
+    minutes,
+    0,
+    0
+  );
 
-  today.setUTCHours(utcHours, minutes, 0, 0);
-  return today;
+  // Convert to UTC
+  return fromZonedTime(etDateTime, EASTERN_TIMEZONE);
 };
 
 export const getBufferAndType = async (

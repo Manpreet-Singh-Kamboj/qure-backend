@@ -9,6 +9,8 @@ import {
   getQueueStatusParamsSchema,
   initializeQueueBodySchema,
   initializeQueueParamsSchema,
+  toggleQueueStatusBodySchema,
+  toggleQueueStatusParamsSchema,
 } from "../schemas/queue.schema.js";
 import { QueueController } from "../controllers/queue.controller.js";
 
@@ -41,6 +43,17 @@ router.get(
     params: getQueueStatusParamsSchema,
   }),
   QueueController.getQueueStatus
+);
+
+router.patch(
+  "/:queueId/status",
+  isAuthenticated,
+  isAdminOrStaff,
+  validate({
+    params: toggleQueueStatusParamsSchema,
+    body: toggleQueueStatusBodySchema,
+  }),
+  QueueController.toggleQueueStatus
 );
 
 export { router as queueRouter };

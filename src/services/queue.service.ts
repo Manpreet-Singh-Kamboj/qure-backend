@@ -1,5 +1,5 @@
 import { prisma } from "../prisma/client.js";
-import { todayWithTime } from "../utils/index.js";
+import { todayWithTime, getTodayInEST } from "../utils/index.js";
 import { OpeningHours } from "../types/index.js";
 import { redis } from "../redis/index.js";
 
@@ -21,8 +21,7 @@ export class QueueService {
       if (!clinic) {
         throw new Error("Clinic not found");
       }
-      const queueDate = new Date();
-      queueDate.setUTCHours(0, 0, 0, 0);
+      const queueDate = getTodayInEST();
 
       const existingQueue = await tx.queue.findFirst({
         where: {
@@ -47,6 +46,7 @@ export class QueueService {
           queueDate,
           startTime,
           endTime,
+          isActive: false,
         },
       });
     });
@@ -57,8 +57,7 @@ export class QueueService {
     if (cachedQueueStatus) return JSON.parse(cachedQueueStatus);
 
     const queueStatus = await prisma.$transaction(async (tx) => {
-      const queueDate = new Date();
-      queueDate.setUTCHours(0, 0, 0, 0);
+      const queueDate = getTodayInEST();
 
       const queue = await tx.queue.findFirst({
         where: { id: queueId, queueDate },
@@ -121,8 +120,7 @@ export class QueueService {
   static async getQueueByClinicId(clinicId: string) {
     const cachedQueue = await redis.get(`clinic_queue:${clinicId}`);
     if (cachedQueue) return JSON.parse(cachedQueue);
-    const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
+    const today = getTodayInEST();
     const tomorrow = new Date(today);
     tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
 
@@ -147,5 +145,25 @@ export class QueueService {
       60 * 15
     );
     return queue;
+  }
+
+  static async toggleQueueStatus(queueId: string, isActive: boolean) {
+    const queue = await prisma.queue.findUnique({
+      where: { id: queueId },
+    });
+
+    if (!queue) {
+      throw new Error("Queue not found");
+    }
+
+    const updatedQueue = await prisma.queue.update({
+      where: { id: queueId },
+      data: { isActive },
+    });
+
+    await redis.del(`queue:status:${queueId}`);
+    await redis.del(`clinic_queue:${queue.clinicId}`);
+
+    return updatedQueue;
   }
 }

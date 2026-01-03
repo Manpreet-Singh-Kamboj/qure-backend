@@ -3,6 +3,7 @@ import { prisma } from "../prisma/client.js";
 import { redis } from "../redis/index.js";
 import { getIO } from "../socket/index.js";
 import { QueueService } from "./queue.service.js";
+import { getTodayInEST } from "../utils/index.js";
 
 export class TokenService {
   static generateTokenForClinic = async (
@@ -31,8 +32,7 @@ export class TokenService {
         throw new Error("You already have an active token");
       }
 
-      const queueDate = new Date();
-      queueDate.setUTCHours(0, 0, 0, 0);
+      const queueDate = getTodayInEST();
 
       const queue = await tx.queue.findUnique({
         where: {
@@ -80,9 +80,6 @@ export class TokenService {
       if (!token) {
         throw new Error("No waiting tokens in this queue");
       }
-
-      const date = new Date();
-      date.setUTCHours(0, 0, 0, 0);
 
       const queue = await tx.queue.findUnique({
         where: { id: queueId, isActive: true },

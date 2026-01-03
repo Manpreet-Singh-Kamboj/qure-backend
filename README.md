@@ -298,6 +298,7 @@ http://localhost:3000/api
 | `POST`   | `/api/queues/init/:clinicId`  | ✅            | Admin/Staff | Initialize daily queue         |
 | `GET`    | `/api/queues/:clinicId`       | ✅            | Any         | Get queue by clinic ID (today) |
 | `GET`    | `/api/queues/:queueId/status` | ✅            | Any         | Get queue status               |
+| `PATCH`  | `/api/queues/:queueId/status` | ✅            | Admin/Staff | Activate/deactivate queue      |
 | `POST`   | `/api/tokens`                 | ✅            | Patient     | Generate token for queue       |
 | `GET`    | `/api/tokens/:patientId`      | ✅            | Patient     | Get patient's waiting token    |
 | `DELETE` | `/api/tokens/:tokenId`        | ✅            | Patient     | Delete own token               |
@@ -849,6 +850,59 @@ Authorization: Bearer <access_token>
   }
 }
 ```
+
+#### Activate/Deactivate Queue (Admin/Staff Only)
+
+```http
+PATCH /api/queues/:queueId/status
+Authorization: Bearer <access_token>
+Content-Type: application/json
+```
+
+**Path Parameters:**
+
+| Parameter | Type   | Required | Validation |
+| --------- | ------ | -------- | ---------- |
+| `queueId` | `uuid` | ✅       | Valid UUID |
+
+**Request Body:**
+
+| Field      | Type      | Required | Description                               |
+| ---------- | --------- | -------- | ----------------------------------------- |
+| `isActive` | `boolean` | ✅       | `true` to activate, `false` to deactivate |
+
+> ⚠️ **Note:** When a queue is deactivated (`isActive: false`), patients cannot generate new tokens for that queue. Existing tokens remain valid.
+
+**Example:**
+
+```json
+{
+  "isActive": true
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Queue activated successfully",
+  "data": {
+    "id": "queue-uuid",
+    "clinicId": "clinic-uuid",
+    "queueDate": "2025-12-30T00:00:00.000Z",
+    "currentTokenNo": 5,
+    "maxQueueSize": 50,
+    "isActive": true,
+    "startTime": "2025-12-30T09:00:00.000Z",
+    "endTime": "2025-12-30T17:00:00.000Z",
+    "createdAt": "2025-12-30T01:00:00.000Z",
+    "updatedAt": "2025-12-30T10:30:00.000Z"
+  }
+}
+```
+
+> 💡 **Note:** Queue status cache is automatically cleared when the queue is activated/deactivated.
 
 ---
 

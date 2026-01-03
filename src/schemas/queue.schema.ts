@@ -16,6 +16,14 @@ export const getQueueParamsSchema = z.object({
   clinicId: z.uuid().min(1),
 });
 
+export const toggleQueueStatusParamsSchema = z.object({
+  queueId: z.uuid().min(1),
+});
+
+export const toggleQueueStatusBodySchema = z.object({
+  isActive: z.boolean(),
+});
+
 export type InitializeQueueParamsSchema = z.infer<
   typeof initializeQueueParamsSchema
 >;
@@ -26,3 +34,9 @@ export type GetQueueStatusParamsSchema = z.infer<
   typeof getQueueStatusParamsSchema
 >;
 export type GetQueueParamsSchema = z.infer<typeof getQueueParamsSchema>;
+export type ToggleQueueStatusParamsSchema = z.infer<
+  typeof toggleQueueStatusParamsSchema
+>;
+export type ToggleQueueStatusBodySchema = z.infer<
+  typeof toggleQueueStatusBodySchema
+>;
