@@ -3,7 +3,7 @@ import { prisma } from "../prisma/client.js";
 import { QueueService } from "../services/queue.service.js";
 import { getTodayInEST } from "../utils/index.js";
 
-const initializeQueuesForAllClinics = async () => {
+export const initializeQueuesForAllClinics = async () => {
   try {
     console.log("🔄 Starting daily queue initialization for all clinics...");
 
@@ -93,19 +93,51 @@ const initializeQueuesForAllClinics = async () => {
 };
 
 export const initializeQueueCronJob = () => {
-  const cronExpression = "0 4 * * *";
+  // Schedule: 5:00 AM UTC = 12:00 AM EST (midnight EST)
+  // If you want it to run at midnight EDT instead, use "0 4 * * *"
+  const cronExpression = "0 5 * * *";
 
-  console.log("⏰ Scheduling daily queue initialization cron job...");
-  console.log(`📅 Cron schedule: ${cronExpression} (4:00 AM UTC)`);
-  console.log(`   - During EDT: Runs at 12:00 AM EDT (midnight)`);
-  console.log(
-    `   - During EST: Runs at 11:00 PM EST (creates queue for next day)`
+  const now = new Date();
+  const utcTime = now.toUTCString();
+  const estTime = new Date(
+    now.toLocaleString("en-US", { timeZone: "America/New_York" })
   );
 
-  cron.schedule(cronExpression, async () => {
-    console.log("⏰ Cron job triggered: Initializing queues for all clinics");
-    await initializeQueuesForAllClinics();
+  console.log("⏰ Scheduling daily queue initialization cron job...");
+  console.log(
+    `📅 Cron schedule: ${cronExpression} (5:00 AM UTC = 12:00 AM EST)`
+  );
+  console.log(`   Current server time: ${utcTime}`);
+  console.log(`   Current EST time: ${estTime.toLocaleString()}`);
+  console.log(`   Next run: Will execute daily at 12:00 AM EST (midnight)`);
+
+  const scheduledTask = cron.schedule(cronExpression, async () => {
+    const triggerTime = new Date();
+    console.log("⏰ ========================================");
+    console.log("⏰ Cron job triggered at:", triggerTime.toISOString());
+    console.log("⏰ UTC time:", triggerTime.toUTCString());
+    console.log(
+      "⏰ EST time:",
+      triggerTime.toLocaleString("en-US", { timeZone: "America/New_York" })
+    );
+    console.log("⏰ Initializing queues for all clinics...");
+    console.log("⏰ ========================================");
+
+    try {
+      await initializeQueuesForAllClinics();
+      console.log(
+        "✅ Cron job completed successfully at:",
+        new Date().toISOString()
+      );
+    } catch (error) {
+      console.error("❌ Cron job failed at:", new Date().toISOString(), error);
+    }
   });
 
-  console.log("✅ Queue initialization cron job scheduled successfully");
+  if (scheduledTask) {
+    console.log("✅ Queue initialization cron job scheduled successfully");
+    console.log(`   Task status: ${scheduledTask.getStatus()}`);
+  } else {
+    console.error("❌ Failed to schedule cron job");
+  }
 };
