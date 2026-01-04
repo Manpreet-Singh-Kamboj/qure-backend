@@ -41,7 +41,7 @@ export const initializeSessionCleanupForAllUsers = async () => {
   }
 };
 
-export const initializeSessionCronJob = () => {
+export const initializeSessionCleanupCronJob = () => {
   // Schedule: 5:00 AM UTC = 12:00 AM EST (midnight EST)
   // If you want it to run at midnight EDT instead, use "0 4 * * *"
   const cronExpression = "0 5 * * *";
