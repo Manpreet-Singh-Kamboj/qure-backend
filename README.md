@@ -303,6 +303,7 @@ http://localhost:3000/api
 | `POST`   | `/api/clinic`                 | ✅            | Admin       | Create new clinic              |
 | `GET`    | `/api/clinic`                 | ✅            | Any         | Get clinics (with geo-filter)  |
 | `GET`    | `/api/clinic/:clinicId`       | ✅            | Any         | Get clinic by ID               |
+| `PATCH`  | `/api/clinic/:clinicId`       | ✅            | Admin       | Update clinic                  |
 | `POST`   | `/api/clinic/:clinicId/staff` | ✅            | Admin       | Add staff to clinic            |
 | `GET`    | `/api/clinic/:clinicId/staff` | ✅            | Admin/Staff | Get clinic staff members       |
 | `POST`   | `/api/queues/init/:clinicId`  | ✅            | Admin/Staff | Initialize daily queue         |
@@ -696,6 +697,65 @@ Authorization: Bearer <access_token>
 | `clinicId` | `uuid` | ✅       | Valid UUID |
 
 > 🚀 **Cached:** Response is cached in Redis for 24 hours
+
+#### Update Clinic (Admin Only)
+
+```http
+PATCH /api/clinic/:clinicId
+Authorization: Bearer <access_token>
+Content-Type: application/json
+```
+
+**Path Parameters:**
+
+| Parameter  | Type   | Required | Validation |
+| ---------- | ------ | -------- | ---------- |
+| `clinicId` | `uuid` | ✅       | Valid UUID |
+
+**Request Body:**
+
+All fields are optional. Only include the fields you want to update.
+
+| Field          | Type     | Required | Validation / Description                                                                                             |
+| -------------- | -------- | -------- | -------------------------------------------------------------------------------------------------------------------- |
+| `name`         | `string` | ❌       | Min 1 character                                                                                                      |
+| `address`      | `string` | ❌       | Street address                                                                                                       |
+| `latitude`     | `number` | ❌       | Clinic's latitude coordinate                                                                                         |
+| `longitude`    | `number` | ❌       | Clinic's longitude coordinate                                                                                        |
+| `phone`        | `string` | ❌       | Must be exactly 10 digits                                                                                            |
+| `email`        | `string` | ❌       | Valid email format                                                                                                   |
+| `website`      | `string` | ❌       | Valid URL                                                                                                            |
+| `description`  | `string` | ❌       | Clinic description                                                                                                   |
+| `openingHours` | `json`   | ❌       | `{"start": "09:00", "end": "17:00"}` (JSON object with start and end times)                                          |
+| `type`         | `enum`   | ❌       | One of: `GENERAL_PRACTICE`, `PEDIATRICS`, `DERMATOLOGY`, `PSYCHIATRY`, `GYNECOLOGY`, `ORTHOPEDICS`, `ENT`, `DENTIST` |
+
+**Example:**
+
+```json
+{
+  "name": "Updated Clinic Name",
+  "address": "456 New Street",
+  "latitude": 40.758,
+  "longitude": -73.9855,
+  "phone": "9876543210",
+  "email": "newemail@clinic.com",
+  "type": "PEDIATRICS",
+  "openingHours": {
+    "start": "08:00",
+    "end": "18:00"
+  }
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Clinic updated successfully",
+  "data": null
+}
+```
 
 #### Add Staff to Clinic (Admin Only)
 
