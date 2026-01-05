@@ -7,6 +7,8 @@ import {
   GetDoctorClinicSchema,
   GetDoctorClinicsSchema,
   GetDoctorClinicStaffParamsSchema,
+  UpdateDoctorClinicParamsSchema,
+  UpdateDoctorClinicSchema,
 } from "../schemas/doctor.clinic.schema.js";
 import { DoctorClinicService } from "../services/doctor.clinic.service.js";
 import { ClinicFiles } from "../types/index.js";
@@ -125,8 +127,8 @@ export class DoctorClinicController {
   static createClinicStaff = async (req: Request, res: Response) => {
     try {
       const { clinicId } = req.params as CreateDoctorClinicStaffParamsSchema;
-      const { userId } = req.body as CreateDoctorClinicStaffBodySchema;
-      await DoctorClinicService.createClinicStaff(clinicId, userId);
+      const { email } = req.body as CreateDoctorClinicStaffBodySchema;
+      await DoctorClinicService.createClinicStaff(clinicId, email);
       return ResponseHandler.success(
         res,
         "Staff member added to clinic successfully.",
@@ -161,6 +163,54 @@ export class DoctorClinicController {
         "Staff members fetched successfully.",
         200,
         staffMembers
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        return ResponseHandler.error(res, error.message, 400, null);
+      }
+      console.error(error);
+      return ResponseHandler.error(
+        res,
+        "Something went wrong. Please try again later.",
+        500,
+        null
+      );
+    }
+  };
+
+  static updateDoctorClinic = async (req: Request, res: Response) => {
+    try {
+      const { clinicId } = req.params as UpdateDoctorClinicParamsSchema;
+      const {
+        name,
+        address,
+        latitude,
+        longitude,
+        phone,
+        email,
+        website,
+        description,
+        openingHours,
+        type,
+      } = req.body as UpdateDoctorClinicSchema;
+      await DoctorClinicService.updateDoctorClinic(
+        clinicId,
+        name,
+        address,
+        latitude,
+        longitude,
+        phone,
+        email,
+        website,
+        description,
+        openingHours,
+        type
+      );
+      return ResponseHandler.success(
+        res,
+        "Clinic updated successfully.",
+        200,
+        undefined
       );
     } catch (error) {
       if (error instanceof Error) {

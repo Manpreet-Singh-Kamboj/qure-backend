@@ -70,11 +70,48 @@ export const createDoctorClinicStaffParamsSchema = z.object({
 });
 
 export const createDoctorClinicStaffBodySchema = z.object({
-  userId: z.uuid().min(1),
+  email: z.email().min(1),
 });
 
 export const getDoctorClinicStaffParamsSchema = z.object({
   clinicId: z.uuid().min(1),
+});
+
+export const updateDoctorClinicParamsSchema = z.object({
+  clinicId: z.uuid().min(1),
+});
+
+export const updateDoctorClinicSchema = z.object({
+  name: z.string().min(1).optional(),
+  address: z.string().optional(),
+  latitude: z.preprocess((val) => Number(val), z.number()).optional(),
+  longitude: z.preprocess((val) => Number(val), z.number()).optional(),
+  phone: z
+    .string()
+    .regex(/^\d{10}$/)
+    .max(10)
+    .optional(),
+  email: z.email().optional(),
+  website: z.url().optional(),
+  description: z.string().optional(),
+  openingHours: z
+    .preprocess(
+      (val: string) => JSON.parse(val),
+      z.object({ start: z.string(), end: z.string() })
+    )
+    .optional(),
+  type: z
+    .enum([
+      "GENERAL_PRACTICE",
+      "PEDIATRICS",
+      "DERMATOLOGY",
+      "PSYCHIATRY",
+      "GYNECOLOGY",
+      "ORTHOPEDICS",
+      "ENT",
+      "DENTIST",
+    ])
+    .optional(),
 });
 
 export type CreateDoctorClinicSchema = z.infer<typeof createDoctorClinicSchema>;
@@ -89,3 +126,8 @@ export type CreateDoctorClinicStaffBodySchema = z.infer<
 export type GetDoctorClinicStaffParamsSchema = z.infer<
   typeof getDoctorClinicStaffParamsSchema
 >;
+
+export type UpdateDoctorClinicParamsSchema = z.infer<
+  typeof updateDoctorClinicParamsSchema
+>;
+export type UpdateDoctorClinicSchema = z.infer<typeof updateDoctorClinicSchema>;

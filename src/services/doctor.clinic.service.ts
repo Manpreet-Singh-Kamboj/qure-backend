@@ -265,7 +265,7 @@ export class DoctorClinicService {
     return clinic;
   };
 
-  static createClinicStaff = async (clinicId: string, userId: string) => {
+  static createClinicStaff = async (clinicId: string, email: string) => {
     await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const clinic = await tx.doctorClinic.findUnique({
         where: { id: clinicId },
@@ -277,8 +277,8 @@ export class DoctorClinicService {
       }
 
       const user = await tx.user.findUnique({
-        where: { id: userId },
-        select: { clinicId: true, role: true },
+        where: { email },
+        select: { id: true, clinicId: true, role: true },
       });
 
       if (!user) {
@@ -296,7 +296,7 @@ export class DoctorClinicService {
       }
 
       await tx.user.update({
-        where: { id: userId },
+        where: { id: user.id },
         data: { clinicId, role: "STAFF" },
       });
     });
@@ -329,5 +329,36 @@ export class DoctorClinicService {
       60 * 60 * 24
     );
     return staffMembers;
+  };
+
+  static updateDoctorClinic = async (
+    clinicId: string,
+    name: string | undefined,
+    address: string | undefined,
+    latitude: number | undefined,
+    longitude: number | undefined,
+    phone: string | undefined,
+    email: string | undefined,
+    website: string | undefined,
+    description: string | undefined,
+    openingHours: { start: string; end: string } | undefined,
+    type: DoctorType | undefined
+  ) => {
+    await prisma.doctorClinic.update({
+      where: { id: clinicId },
+      data: {
+        ...(name !== undefined && { name }),
+        ...(address !== undefined && { address }),
+        ...(latitude !== undefined && { latitude }),
+        ...(longitude !== undefined && { longitude }),
+        ...(phone !== undefined && { phone }),
+        ...(email !== undefined && { email }),
+        ...(website !== undefined && { website }),
+        ...(description !== undefined && { description }),
+        ...(openingHours !== undefined && { openingHours }),
+        ...(type !== undefined && { type }),
+      },
+    });
+    await redis.del(`clinic:${clinicId}`);
   };
 }

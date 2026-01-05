@@ -13,6 +13,8 @@ import {
   getDoctorClinicSchema,
   getDoctorClinicsSchema,
   getDoctorClinicStaffParamsSchema,
+  updateDoctorClinicParamsSchema,
+  updateDoctorClinicSchema,
 } from "../schemas/doctor.clinic.schema.js";
 
 const router: Router = Router();
@@ -23,6 +25,17 @@ router.post(
   isAdmin,
   validate({ body: createDoctorClinicSchema }),
   DoctorClinicController.createClinic
+);
+
+router.patch(
+  "/:clinicId",
+  isAuthenticated,
+  isAdmin,
+  validate({
+    params: updateDoctorClinicParamsSchema,
+    body: updateDoctorClinicSchema,
+  }),
+  DoctorClinicController.updateDoctorClinic
 );
 
 router.get(
