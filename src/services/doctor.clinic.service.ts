@@ -86,7 +86,14 @@ export class DoctorClinicService {
       )
     );
 
-    await redis.del("all-clinics");
+    const stream = redis.scanStream({ match: "clinics:*" });
+    stream.on("data", (keys: string[]) => {
+      if (keys.length) redis.unlink(...keys);
+    });
+    stream.on("end", () => {
+      redis.del("all-clinics");
+    });
+
     return clinic;
   };
 
@@ -358,6 +365,13 @@ export class DoctorClinicService {
         ...(openingHours !== undefined && { openingHours }),
         ...(type !== undefined && { type }),
       },
+    });
+    const stream = redis.scanStream({ match: "clinics:*" });
+    stream.on("data", (keys: string[]) => {
+      if (keys.length) redis.unlink(...keys);
+    });
+    stream.on("end", () => {
+      redis.del("all-clinics");
     });
     await redis.del(`clinic:${clinicId}`);
   };
