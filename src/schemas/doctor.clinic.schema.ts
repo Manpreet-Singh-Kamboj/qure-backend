@@ -95,11 +95,15 @@ export const updateDoctorClinicSchema = z.object({
   website: z.url().optional(),
   description: z.string().optional(),
   openingHours: z
-    .preprocess(
-      (val: string) => JSON.parse(val),
-      z.object({ start: z.string(), end: z.string() })
-    )
-    .optional(),
+    .union([
+      z.object({
+        start: z.string(),
+        end: z.string(),
+      }),
+      z.string(),
+    ])
+    .optional()
+    .transform((val) => (typeof val === "string" ? JSON.parse(val) : val)),
   type: z
     .enum([
       "GENERAL_PRACTICE",
