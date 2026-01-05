@@ -15,14 +15,14 @@ export function initializeExpressServer(): Express {
       methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     })
   );
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
   app.use(
     fileUpload({
       useTempFiles: true,
       tempFileDir: "/tmp",
     })
   );
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
 
   app.use("/api/auth", authRouter);
   app.use("/api/clinic", clinicRouter);
