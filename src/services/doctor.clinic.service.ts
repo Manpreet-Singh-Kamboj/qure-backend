@@ -304,7 +304,7 @@ export class DoctorClinicService {
 
       await tx.user.update({
         where: { id: user.id },
-        data: { clinicId, role: "STAFF" },
+        data: { clinicId: clinic.id, role: "STAFF" },
       });
     });
     await redis.del(`clinic-staff-members:${clinicId}`);
